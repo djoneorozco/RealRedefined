@@ -109,8 +109,7 @@
     <div class="question" id="questionText"></div>
     <div class="options" id="optionsContainer"></div>
 
-    <div class="input-group" id="cityGroup">
-      <input type="text" id="cityInput" placeholder="Your City (e.g. Austin)" />
+      
       <button class="btn" onclick="submitAll()">Finish & Generate Tagline</button>
     </div>
 
@@ -167,7 +166,6 @@
         showQuestion();
       } else {
         // show city input & hide options
-        document.getElementById("questionText").innerText = "Finally, what city is this in?";
         document.getElementById("optionsContainer").style.display = "none";
         document.getElementById("cityGroup").style.display = "flex";
       }
