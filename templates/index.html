@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RealRefined.ai Assistant</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script defer>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("listing-form");
+      const avatarSpeech = document.getElementById("avatar-speech");
+      const responseContainer = document.getElementById("response");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        avatarSpeech.textContent = "Give me a second to work my magic... ✨";
+
+        const formData = {
+          property_type: form.property_type.value,
+          price: form.price.value,
+          location: form.location.value,
+          buyer_type: form.buyer_type.value,
+          features: form.features.value,
+        };
+
+        try {
+          const res = await axios.post("https://realredefined.onrender.com/generate-description", formData);
+          responseContainer.textContent = res.data.description || "No response received.";
+          avatarSpeech.textContent = "Here’s your AI-polished listing, darling 💁‍♀️✨";
+        } catch (err) {
+          responseContainer.textContent = "Oops, something went wrong. Try again later.";
+          avatarSpeech.textContent = "Ugh, the connection broke my flow. Try again? 💔";
+        }
+      });
+    });
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-6xl flex overflow-hidden">
+    <!-- Avatar Panel -->
+    <div class="w-2/5 bg-gradient-to-br from-rose-200 via-pink-100 to-yellow-100 flex flex-col items-center justify-center p-6">
+      <img src="https://i.ibb.co/ZKsmTDk/avatar-chica-blonde.png" alt="Chica Avatar" class="rounded-full w-48 h-48 border-4 border-white shadow-lg mb-6" />
+      <div id="avatar-speech" class="text-xl font-medium text-center italic text-gray-800">
+        Hi love — ready to make this listing irresistible?
+      </div>
+    </div>
+
+    <!-- Form Panel -->
+    <div class="w-3/5 p-8 space-y-6">
+      <h2 class="text-3xl font-bold text-gray-800">Let’s enhance your property listing</h2>
+      <form id="listing-form" class="space-y-4">
+        <div>
+          <label class="block font-semibold">Property Type</label>
+          <select name="property_type" required class="w-full p-2 border rounded">
+            <option value="Single Family">Single Family</option>
+            <option value="Townhouse">Townhouse</option>
+            <option value="Condo">Condo</option>
+            <option value="Multi-Family">Multi-Family</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold">Listing Price ($)</label>
+          <input type="number" name="price" required class="w-full p-2 border rounded" />
+        </div>
+        <div>
+          <label class="block font-semibold">Location (City or ZIP)</label>
+          <input type="text" name="location" required class="w-full p-2 border rounded" />
+        </div>
+        <div>
+          <label class="block font-semibold">Ideal Buyer</label>
+          <div class="flex flex-wrap gap-4 mt-1">
+            <label><input type="radio" name="buyer_type" value="Family" required /> Family</label>
+            <label><input type="radio" name="buyer_type" value="Military" /> Military</label>
+            <label><input type="radio" name="buyer_type" value="Investor" /> Investor</label>
+            <label><input type="radio" name="buyer_type" value="First-time Buyer" /> First-time Buyer</label>
+            <label><input type="radio" name="buyer_type" value="Luxury" /> Luxury</label>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold">Special Features (Optional)</label>
+          <textarea name="features" rows="3" class="w-full p-2 border rounded" placeholder="e.g., recently renovated kitchen, backyard deck, solar panels..."></textarea>
+        </div>
+        <button type="submit" class="w-full bg-pink-500 text-white font-semibold py-2 px-4 rounded hover:bg-pink-600 transition">Generate Listing ✨</button>
+      </form>
+      <div id="response" class="mt-6 p-4 bg-gray-50 border rounded text-gray-700 whitespace-pre-wrap"></div>
+    </div>
+  </div>
+</body>
+</html>
