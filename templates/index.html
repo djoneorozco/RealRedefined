@@ -68,11 +68,11 @@
       position: absolute;
       top: 0;
       left: 0;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      opacity: 0.8;
+      z-index: 0;
+      display: none; /* Hide initially */
     }
   </style>
 </head>
@@ -84,7 +84,7 @@
       <p>Your AI-powered partner for stunning listings that sell.</p>
       <button onclick="startExperience()">Get Started</button>
     </div>
-    <video id="bgVideo" loop muted playsinline>
+    <video id="bgVideo" autoplay loop controls>
       <source src="/static/real.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
@@ -94,9 +94,11 @@
     function startExperience() {
       document.getElementById('intro').style.display = 'none';
       const video = document.getElementById('bgVideo');
-      if (video.paused) {
-        video.play();
-      }
+      video.style.display = 'block';
+      video.muted = false; // unmute
+      video.play().catch(error => {
+        console.log("Autoplay issue:", error);
+      });
     }
   </script>
 </body>
