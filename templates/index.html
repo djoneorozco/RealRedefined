@@ -15,198 +15,163 @@
       height: 100vh;
       flex-direction: column;
     }
-    .overlay {
+    .overlay, .quiz-container {
       background-color: white;
       border-radius: 16px;
       padding: 2rem;
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
       text-align: center;
-      max-width: 400px;
-      margin-bottom: 2rem;
+      max-width: 600px;
+      width: 100%;
     }
+    .overlay { margin-bottom: 2rem; }
     .avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 1rem;
+      width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem;
     }
     .btn {
-      background-color: #7a29cc;
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 1rem;
+      background-color: #7a29cc; color: white; border: none;
+      padding: 0.6rem 1.2rem; font-size: 2rem; border-radius: 8px;
+      cursor: pointer; margin-top: 1rem;
     }
-    .quiz-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-      max-width: 500px;
-      width: 100%;
-      text-align: center;
-    }
+    .quiz-container { display: none; gap: 1.5rem; }
     video {
-      width: 240px;
-      border-radius: 16px;
+      width: 450px; border-radius: 16px; margin-bottom: 1rem;
     }
     .question {
-      font-weight: bold;
-      font-size: 1.1rem;
+      font-weight: bold; font-size: 1.5rem; margin-bottom: 1rem;
     }
     .options {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: center;
+      display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
     }
     .option-btn {
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
+      background: #fff; border: 1px solid #ccc;
+      padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;
+      font-size: 1rem;
     }
     .option-img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 8px;
-      cursor: pointer;
-      border: 2px solid transparent;
+      width: 120px; height: 120px;
+      object-fit: cover; border-radius: 8px;
+      cursor: pointer; border: 2px solid transparent;
       transition: border-color .2s;
     }
-    .option-img:hover {
-      border-color: #7a29cc;
-    }
-    .input-group {
-      display: none;
-      flex-direction: column;
-      gap: 0.5rem;
-      width: 100%;
-      max-width: 300px;
-    }
-    .input-group input {
-      padding: 0.5rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
+    .option-img:hover { border-color: #7a29cc; }
     #taglineBox {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-      font-style: italic;
-      color: #444;
+      margin-top: 1.5rem; font-size: 1.2rem;
+      font-style: italic; color: #444;
     }
   </style>
 </head>
 <body>
 
+  <!-- Welcome Overlay -->
   <div class="overlay" id="welcomeBox">
     <img src="/static/avatar.png" class="avatar" />
     <h2>Welcome to RealRefined.ai</h2>
-    <p>Your AI-powered partner for stunning listings that sell.</p>
+    <p>Your AI­-powered partner for stunning listings that sell.</p>
     <button class="btn" onclick="startQuiz()">Get Started</button>
   </div>
 
+  <!-- Quiz Flow Container -->
   <div class="quiz-container" id="quizBox">
-    <video id="agentVideo" src="/static/real.mp4" autoplay muted></video>
+    <!-- video no longer loops -->
+    <video id="agentVideo" src="/static/real.mp4"></video>
     <div class="question" id="questionText"></div>
     <div class="options" id="optionsContainer"></div>
-
-    <div class="input-group" id="cityGroup">
-      <input type="text" id="cityInput" placeholder="Your City (e.g. Austin)" />
-      <button class="btn" onclick="submitAll()">Finish & Generate Tagline</button>
-    </div>
-
     <div id="taglineBox"></div>
   </div>
 
   <script>
+    // All-clicks, no text inputs
     const questions = [
-      { text: "Who's the perfect buyer for this home?", options: ["Family","Retiree","Investor","First-Time Buyer","Remote Worker"] },
-      { text: "What’s the surrounding area like?",      options: ["Quiet Suburb","Urban","Gated Community","Rural","Walkable Shops"] },
-      { text: "What vibe does the home give off?",       options: ["Cozy","Grand","Peaceful","Artistic","Sleek"] },
-      { text: "What makes this home stand out?",         options: ["Scenic Views","Renovated Kitchen","Large Backyard","Open Plan","Smart Home"] },
-      // ** Lifestyle question will use images **
-      { text: "What kind of lifestyle does this home support?", imageOptions: [
-          { src: "/static/images/active-family.jpg", alt: "Active Family" },
-          { src: "/static/images/entertainment.jpg", alt: "Entertainment" },
-          { src: "/static/images/relaxation.jpg", alt: "Relaxation" },
-          { src: "/static/images/retirement.jpg", alt: "Retirement" },
-          { src: "/static/images/wfh.jpg", alt: "Work From Home" }
+      { text: "Who's the perfect buyer?",          options:["Family","Retiree","Investor","First-Time Buyer","Remote Worker"] },
+      { text: "Area type?",                         options:["Quiet Suburb","Urban","Gated Community","Rural","Walkable Shops"] },
+      { text: "Home vibe?",                         options:["Cozy","Grand","Peaceful","Artistic","Sleek"] },
+      { text: "Stand-out feature?",                 options:["Scenic Views","Renovated Kitchen","Large Backyard","Open Plan","Smart Home"] },
+
+      // ← the fifth question now uses images instead of text
+      { text: "Supported lifestyle?", imageOptions: [
+          { src:"/static/images/active-family.jpg",   alt:"Entertaining"        },
+          { src:"/static/images/entertainment.jpg",   alt:"Entertainment"       },
+          { src:"/static/images/relaxation.jpg",      alt:"Relaxation"          },
+          { src:"/static/images/retirement.jpg",      alt:"Retirement"          },
+          { src:"/static/images/wfh.jpg",             alt:"Work-From-Home"      },
         ]
-      }
+      },
+
+      { text: "Interior style?",                    options:["Modern","Rustic","Coastal","Industrial","Traditional"] },
+      { text: "Natural light?",                     options:["Bright & Sunny","Soft & Cozy","Filtered","Dramatic","Minimal"] },
+      { text: "Outdoor space?",                     options:["Patio/Deck","Pool/Lanai","Garden","Balcony","Spacious Yard"] },
+      { text: "Key amenity?",                       options:["Gym","Fireplace","Garage","Walk-In Closet","Home Office"] },
+      { text: "Summarize its appeal?",              options:["Luxury Retreat","Urban Oasis","Country Charm","Eco-Friendly","Tech-Savvy"] },
+      { text: "Which city is it in?",               options:["Houston","San Antonio","Dallas","Austin","Fort Worth"] }
     ];
 
     let answers = [], current = 0;
 
-    function startQuiz(){
+    function startQuiz() {
       document.getElementById("welcomeBox").style.display = "none";
       document.getElementById("quizBox").style.display = "flex";
       const vid = document.getElementById("agentVideo");
       vid.muted = false;
+      vid.loop = false;  // ensure it only plays once
       vid.play();
       showQuestion();
     }
 
-    function showQuestion(){
+    function showQuestion() {
       const q = questions[current];
       document.getElementById("questionText").innerText = q.text;
       const opts = document.getElementById("optionsContainer");
       opts.innerHTML = "";
+      opts.style.display = "flex";
 
-      // if this question has images...
-      if(q.imageOptions){
-        q.imageOptions.forEach(o=>{
+      if (q.imageOptions) {
+        // render images
+        q.imageOptions.forEach(o => {
           const img = document.createElement("img");
           img.src = o.src;
           img.alt = o.alt;
           img.className = "option-img";
           img.onclick = () => {
             answers.push(o.alt);
-            nextQuestion();
+            nextStep();
           };
           opts.appendChild(img);
         });
       } else {
-        // normal text options
-        q.options.forEach(o=>{
-          const btn = document.createElement("button");
-          btn.className = "option-btn";
-          btn.innerText = o;
-          btn.onclick = () => {
-            answers.push(o);
-            nextQuestion();
+        // render text buttons
+        q.options.forEach(opt => {
+          const b = document.createElement("button");
+          b.className = "option-btn";
+          b.innerText = opt;
+          b.onclick = () => {
+            answers.push(opt);
+            nextStep();
           };
-          opts.appendChild(btn);
+          opts.appendChild(b);
         });
       }
     }
 
-    function nextQuestion(){
+    function nextStep() {
       current++;
-      if(current < questions.length){
+      if (current < questions.length) {
         showQuestion();
       } else {
-        document.getElementById("optionsContainer").style.display = "none";
-        document.getElementById("cityGroup").style.display = "flex";
-        document.getElementById("questionText").innerText = "Finally, what city is this in?";
+        generateTagline();
       }
     }
 
-    async function submitAll(){
-      const city = document.getElementById("cityInput").value.trim();
-      if(!city) return alert("Please enter your city.");
+    async function generateTagline() {
+      document.getElementById("questionText").innerText = "";
+      document.getElementById("optionsContainer").style.display = "none";
       document.getElementById("taglineBox").innerText = "Generating your AI-crafted tagline…";
+
       try {
         const res = await fetch("/generate", {
           method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({ responses: answers, city })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ responses: answers })
         });
         const { tagline } = await res.json();
         document.getElementById("taglineBox").innerText =
