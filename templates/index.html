@@ -25,8 +25,8 @@
       margin-bottom: 2rem;
     }
     .avatar {
-      width: 120px;
-      height: 120px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 1rem;
@@ -66,14 +66,15 @@
       cursor: pointer;
     }
     video {
-      width: 450px;
+      width: 240px;
       border-radius: 16px;
       margin-bottom: -1rem;
     }
     #taglineBox {
-      font-weight: bold;
       margin-top: 1.5rem;
-      color: #7a29cc;
+      font-style: italic;
+      font-weight: bold;
+      color: #333;
     }
   </style>
 </head>
@@ -86,7 +87,7 @@
   </div>
 
   <div class="question-section" id="questionBox">
-    <video id="agentVideo" src="/static/real.mp4" autoplay loop controls></video>
+    <video id="agentVideo" src="/static/real.mp4" autoplay muted loop></video>
     <div class="question" id="questionText">First, tell us about your listing goals...</div>
     <div class="options" id="optionButtons"></div>
     <div id="taglineBox"></div>
@@ -94,20 +95,50 @@
 
   <script>
     const questions = [
-      { text: "Who's the perfect buyer for this home?", options: ["Family", "Retiree", "Military", "Student", "Remote Worker"] },
-      { text: "What’s the surrounding area like?", options: ["Quiet Suburb", "Urban", "Gated Community", "Rural", "Walkable Shops"] },
-      { text: "What vibe does the home give off?", options: ["Cozy", "Grand", "Peaceful", "Artistic", "Sleek"] },
-      { text: "What makes this home stand out?", options: ["Scenic Views", "Renovated Kitchen", "Large Backyard", "Open Floor Plan", "Smart Home Features"] },
-      { text: "What kind of lifestyle does this home support?", options: ["Entertaining", "Relaxation", "Active Family Life", "Work-from-Home", "Retirement Ready"] },
-      { text: "What city is the home in?", options: ["San Antonio", "Austin", "Houston", "Dallas", "El Paso"] },
-      { text: "What's the area code?", options: ["78201", "73301", "77001", "75201", "79901"] },
-      { text: "Is the home move-in ready?", options: ["Yes", "No", "Partially"] },
-      { text: "What emotion should the listing evoke?", options: ["Excitement", "Comfort", "Luxury", "Simplicity", "Adventure"] },
-      { text: "What's the main call to action?", options: ["Schedule a Tour", "Contact Agent", "See More Photos", "Submit an Offer", "Get Pre-Approved"] }
+      {
+        name: "buyer",
+        text: "Who's the perfect buyer for this home?",
+        options: ["Family", "Retiree", "Military", "Student", "Remote Worker"]
+      },
+      {
+        name: "area",
+        text: "What’s the surrounding area like?",
+        options: ["Quiet Suburb", "Urban", "Gated Community", "Rural", "Walkable Shops"]
+      },
+      {
+        name: "vibe",
+        text: "What vibe does the home give off?",
+        options: ["Cozy", "Grand", "Peaceful", "Artistic", "Sleek"]
+      },
+      {
+        name: "standOut",
+        text: "What makes this home stand out?",
+        options: ["Scenic Views", "Renovated Kitchen", "Large Backyard", "Open Floor Plan", "Smart Home Features"]
+      },
+      {
+        name: "lifestyle",
+        text: "What kind of lifestyle does this home support?",
+        options: ["Entertaining", "Relaxation", "Active Family Life", "Work-from-Home", "Retirement Ready"]
+      },
+      {
+        name: "emotion",
+        text: "What emotion do you want the buyer to feel?",
+        options: ["Excitement", "Calm", "Inspiration", "Luxury", "Comfort"]
+      },
+      {
+        name: "city",
+        text: "Which city is this property in?",
+        options: ["San Antonio", "Austin", "Dallas", "Houston", "El Paso"]
+      },
+      {
+        name: "zip",
+        text: "What is the zip code?",
+        options: ["78230", "78701", "75201", "77002", "79901"]
+      }
     ];
 
+    let answers = {};
     let currentQuestion = 0;
-    const answers = [];
 
     function startExperience() {
       document.getElementById("welcomeBox").style.display = "none";
@@ -125,7 +156,7 @@
         btn.innerText = opt;
         btn.className = "option-btn";
         btn.onclick = () => {
-          answers.push(opt);
+          answers[q.name] = opt;
           nextQuestion();
         };
         optionsContainer.appendChild(btn);
@@ -141,16 +172,20 @@
       }
     }
 
-    function generateTagline() {
-      document.getElementById("questionText").innerText = "Thanks! Here's your refined listing tagline:";
+    async function generateTagline() {
+      document.getElementById("questionText").innerText = "Generating your AI-crafted tagline...";
       document.getElementById("optionButtons").innerHTML = "";
-      const city = answers[5];
-      const zip = answers[6];
-      const vibe = answers[2];
-      const standOut = answers[3];
-      const emotion = answers[8];
-      const tagline = `Experience ${emotion} in this ${vibe} home featuring ${standOut} – nestled in ${city}, ${zip}.`;
-      document.getElementById("taglineBox").innerText = tagline;
+
+      const response = await fetch("/generate_tagline", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(answers)
+      });
+
+      const data = await response.json();
+      document.getElementById("taglineBox").innerText = data.tagline || "Couldn't generate a tagline.";
     }
   </script>
 </body>
