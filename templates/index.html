@@ -20,16 +20,6 @@
       justify-content: center;
     }
 
-    .background-video {
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      width: 60%;
-      object-fit: cover;
-      z-index: 1;
-    }
-
     .intro-box {
       background: white;
       padding: 2rem;
@@ -44,55 +34,70 @@
 
     .intro-box img {
       width: 80px;
-      height: auto;
+      height: 80px;
+      border-radius: 50%;
       margin-bottom: 1rem;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 2rem;
+    .intro-box h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
     }
 
-    p {
-      font-size: 1.1rem;
+    .intro-box p {
+      font-size: 1rem;
       margin-bottom: 1.5rem;
     }
 
-    button {
-      background-color: #4a00e0;
+    .intro-box button {
+      background-color: #6a0dad;
       color: white;
-      padding: 0.8rem 1.6rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      padding: 0.7rem 1.5rem;
       font-size: 1rem;
-      transition: background-color 0.3s;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
-    button:hover {
-      background-color: #3700b3;
+    .intro-box button:hover {
+      background-color: #4b0082;
     }
 
-    @media (max-width: 768px) {
-      .background-video {
-        display: none;
-      }
+    video#bgVideo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      opacity: 0.8;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <video autoplay muted loop class="background-video">
-      <source src="/static/real.mp4" type="video/mp4" />
-    </video>
-    <div class="intro-box">
-      <img src="/static/avatar.png" alt="Digital Realtor" />
-      <h1>Welcome to RealRefined.ai</h1>
+    <div class="intro-box" id="intro">
+      <img src="/static/avatar.png" alt="Avatar" />
+      <h1>Welcome to <strong>RealRefined.ai</strong></h1>
       <p>Your AI-powered partner for stunning listings that sell.</p>
-      <form action="/questions" method="get">
-        <button type="submit">Get Started</button>
-      </form>
+      <button onclick="startExperience()">Get Started</button>
     </div>
+    <video id="bgVideo" loop muted playsinline>
+      <source src="/static/real.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
   </div>
+
+  <script>
+    function startExperience() {
+      document.getElementById('intro').style.display = 'none';
+      const video = document.getElementById('bgVideo');
+      if (video.paused) {
+        video.play();
+      }
+    }
+  </script>
 </body>
 </html>
