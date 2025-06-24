@@ -1,47 +1,49 @@
-from flask import Flask, render_template, request, jsonify
-import os
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 import openai
+import os
 
-# Load environment variables from .env
+# Load environment variables
 load_dotenv()
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-app = Flask(__name__)
+app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+@app.get("/", response_class=HTMLResponse)
+def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.route("/generate", methods=["POST"])
-def generate_tagline():
-    data = request.get_json()
-    responses = data.get("responses", "")
-    city = data.get("city", "")
-    zipcode = data.get("zipcode", "")
+@app.post("/generate_tagline")
+async def generate_tagline(request: Request):
+    data = await request.json()
+    city = data.get("city")
+    zip_code = data.get("zip")
+    emotion = data.get("emotion")
+    vibe = data.get("vibe")
+    stand_out = data.get("standOut")
 
-    # Updated prompt
     prompt = (
-        f"You are a world-class real estate marketing expert. Write a high-impact, AI-enhanced tagline "
-        f"for a property listing located in {city}, area code {zipcode}. "
-        f"The realtor described the home with these details: {responses}. "
-        f"Make the tagline elegant, compelling, and optimized to attract ideal buyers. "
-        f"Use language that evokes emotion, luxury, or investment potential depending on the description."
+        f"Craft a compelling real estate tagline for a home in {city}, {zip_code}. "
+        f"The home gives off a {vibe} vibe and stands out for its {stand_out}. "
+        f"It evokes a feeling of {emotion}. Make it catchy, appealing, and no more than one sentence."
     )
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=100,
-            temperature=0.9
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a creative real estate copywriter."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
         )
-
         ai_tagline = response.choices[0].message.content.strip()
-        return jsonify({"tagline": ai_tagline})
-
+        return JSONResponse(content={"tagline": ai_tagline})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(debug=True)
+        return JSONResponse(content={"tagline": "There was an error generating the tagline."}, status_code=500)
