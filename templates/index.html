@@ -71,7 +71,7 @@
       cursor: pointer;
     }
     .input-group {
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 0.5rem;
       width: 100%;
@@ -88,6 +88,11 @@
       font-style: italic;
       color: #444;
     }
+    .texas-list {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -100,15 +105,27 @@
   </div>
 
   <div class="quiz-container" id="quizBox">
-    <video id="agentVideo" src="/static/real.mp4" muted loop></video>
+    <video id="agentVideo" src="/static/real.mp4" loop></video>
     <div class="question" id="questionText"></div>
     <div class="options" id="optionsContainer"></div>
-    <div class="input-group" id="cityZipGroup" style="display:none;">
-      <input type="text" id="cityInput" placeholder="City (e.g. San Antonio)" />
-      <input type="text" id="zipInput" placeholder="ZIP Code (e.g. 78205)" />
+
+    <div class="input-group" id="cityGroup">
+      <input type="text" id="cityInput" placeholder="Your City (e.g. Austin)" />
       <button class="btn" onclick="submitAll()">Finish & Generate Tagline</button>
     </div>
+
     <div id="taglineBox"></div>
+
+    <div class="texas-list">
+      <strong>5 Major Texas Cities:</strong>
+      <ul style="list-style:none; padding-left:0; margin:0.5rem 0;">
+        <li>• Houston</li>
+        <li>• San Antonio</li>
+        <li>• Dallas</li>
+        <li>• Austin</li>
+        <li>• Fort Worth</li>
+      </ul>
+    </div>
   </div>
 
   <script>
@@ -125,12 +142,15 @@
       { text: "How would you summarize its appeal?",         options: ["Luxury Retreat","Urban Oasis","Country Charm","Eco-Friendly","Tech-Savvy"] },
     ];
 
-    let answers = [];
-    let current = 0;
+    let answers = [], current = 0;
 
     function startQuiz(){
       document.getElementById("welcomeBox").style.display = "none";
       document.getElementById("quizBox").style.display = "flex";
+      // unmute & play
+      const vid = document.getElementById("agentVideo");
+      vid.muted = false;
+      vid.play();
       showQuestion();
     }
 
@@ -139,12 +159,13 @@
       document.getElementById("questionText").innerText = q.text;
       const opts = document.getElementById("optionsContainer");
       opts.innerHTML = "";
-      q.options.forEach(o=>{
-        const b = document.createElement("button");
-        b.className = "option-btn";
-        b.innerText = o;
-        b.onclick = ()=>{ answers.push(o); nextStep(); };
-        opts.appendChild(b);
+      opts.style.display = "flex";
+      questions[current].options.forEach(o=>{
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerText = o;
+        btn.onclick = ()=>{ answers.push(o); nextStep(); };
+        opts.appendChild(btn);
       });
     }
 
@@ -153,34 +174,28 @@
       if(current < questions.length){
         showQuestion();
       } else {
-        // show city/zip inputs
-        document.getElementById("questionText").innerText = "Almost done — tell us your City & ZIP:";
+        // show city input & hide options
+        document.getElementById("questionText").innerText = "Finally, what city is this in?";
         document.getElementById("optionsContainer").style.display = "none";
-        document.getElementById("cityZipGroup").style.display = "flex";
+        document.getElementById("cityGroup").style.display = "flex";
       }
     }
 
     async function submitAll(){
       const city = document.getElementById("cityInput").value.trim();
-      const zipcode = document.getElementById("zipInput").value.trim();
-      if(!city||!zipcode){
-        alert("Please enter both City and ZIP code.");
-        return;
-      }
-      // show loading tagline
-      document.getElementById("taglineBox").innerText = "Generating your AI-crafted tagline...";
+      if(!city){ return alert("Please enter your city."); }
+      document.getElementById("taglineBox").innerText = "Generating your AI-crafted tagline…";
       try {
         const res = await fetch("/generate", {
           method:"POST",
           headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ responses: answers, city, zipcode })
+          body: JSON.stringify({ responses: answers, city })
         });
         const data = await res.json();
-        if(data.tagline){
-          document.getElementById("taglineBox").innerText = `"${data.tagline}"`;
-        } else {
-          document.getElementById("taglineBox").innerText = "Sorry, could not generate a tagline.";
-        }
+        document.getElementById("taglineBox").innerText =
+          data.tagline
+            ? `"${data.tagline}"`
+            : "Sorry, couldn't generate a tagline.";
       } catch(e){
         document.getElementById("taglineBox").innerText = "Error: " + e.message;
       }
