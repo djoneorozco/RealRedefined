@@ -3,147 +3,188 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RealRedefined.ai – Listing Assistant</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <title>RealRedefined.ai</title>
   <style>
     body {
       margin: 0;
-      padding: 0;
-      font-family: 'Outfit', sans-serif;
-      background: linear-gradient(to right, #f0e8dc, #fefaf5);
+      background: linear-gradient(to bottom right, #e6efff, #ffffff);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .card {
-      background: white;
-      border-radius: 20px;
-      padding: 2rem;
-      max-width: 520px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 1rem;
-    }
-    h1 {
-      font-weight: 800;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    p {
-      font-size: 0.95rem;
-      color: #555;
-      margin-bottom: 2rem;
-    }
-    button {
-      background: #5b3e2b;
-      color: white;
-      padding: 0.7rem 1.2rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: #3a271c;
-    }
-    .form-step {
-      display: none;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
+      padding: 2rem;
     }
-    .form-step.active {
+
+    .main-content {
       display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      width: 100%;
     }
-    input, select {
-      padding: 0.6rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin: 1rem 0;
-      width: 80%;
+
+    .avatar-container-wrapper {
+      position: relative;
+      flex: 1;
+      min-width: 320px;
+      max-width: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 1.5rem;
+    }
+
+    .background-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      opacity: 0.5;
+      border-radius: 1.5rem;
+    }
+
+    .avatar-container {
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      text-align: center;
+    }
+
+    .intro-text {
+      font-size: 1.2rem;
+      color: #333;
+      text-align: center;
+    }
+
+    .selection-area {
+      flex: 2;
+      min-width: 320px;
+      max-width: 600px;
+    }
+
+    .banner-preview {
+      width: 100%;
+      height: 180px;
+      background-image: url('banner-mock.jpg');
+      background-size: cover;
+      background-position: center;
+      border-radius: 1rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    .selection-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .selection-option {
+      width: 150px;
+      height: 150px;
+      background-color: #fff;
+      background-size: cover;
+      background-position: center;
+      border-radius: 1rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 0.5rem;
+    }
+
+    .selection-option:hover {
+      transform: scale(1.05);
+    }
+
+    .response-box, .upload-box {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #f9fafb;
+      border-radius: 1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div class="card" id="welcome-screen">
-    <img src="/static/avatar.png" alt="Digital Realtor" class="avatar">
-    <h1>Hi there! I'm your Listing Assistant.</h1>
-    <p>Let’s refine your property listing to attract the perfect buyer. Ready to begin?</p>
-    <button onclick="nextStep()">Get Started</button>
-  </div>
+  <div class="main-content">
+    <div class="avatar-container-wrapper">
+      <video autoplay muted loop playsinline class="background-video">
+        <source src="real.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <div class="avatar-container">
+        <div class="intro-text">
+          <p>Welcome… I’ve been waiting to help you refine your next listing.✨<br>Let’s get started by identifying your ideal buyer and listing tone.</p>
+        </div>
+      </div>
+    </div>
 
-  <div class="card form-step" id="step-1">
-    <h1>What type of property?</h1>
-    <select id="property-type">
-      <option value="House">House</option>
-      <option value="Condo">Condo</option>
-      <option value="Townhome">Townhome</option>
-      <option value="Land">Land</option>
-    </select>
-    <button onclick="nextStep()">Next</button>
-  </div>
+    <div class="selection-area">
+      <div class="banner-preview">"Cozy Studio Retreat – Perfect for First-Time Buyers"</div>
 
-  <div class="card form-step" id="step-2">
-    <h1>What’s the listing price?</h1>
-    <input type="text" id="price" placeholder="$150,000" />
-    <button onclick="nextStep()">Next</button>
-  </div>
+      <div class="selection-grid" id="stage1">
+        <div class="selection-option" style="background-image: url('student.jpg');" onclick="nextStage('Student')">Student</div>
+        <div class="selection-option" style="background-image: url('couple.jpg');" onclick="nextStage('Couple')">Couple</div>
+        <div class="selection-option" style="background-image: url('family.jpg');" onclick="nextStage('Family')">Family</div>
+        <div class="selection-option" style="background-image: url('retiree.jpg');" onclick="nextStage('Retiree')">Retiree</div>
+        <div class="selection-option" style="background-image: url('remote.jpg');" onclick="nextStage('Remote Worker')">Remote</div>
+      </div>
 
-  <div class="card form-step" id="step-3">
-    <h1>How many bedrooms and baths?</h1>
-    <input type="text" id="bedsbaths" placeholder="3 bed / 2 bath" />
-    <button onclick="nextStep()">Next</button>
-  </div>
+      <div id="stage2" class="selection-grid" style="display:none;">
+        <div class="selection-option" style="background-image: url('modern.jpg');" onclick="requestUpload('Modern')">Modern</div>
+        <div class="selection-option" style="background-image: url('rustic.jpg');" onclick="requestUpload('Rustic')">Rustic</div>
+        <div class="selection-option" style="background-image: url('coastal.jpg');" onclick="requestUpload('Coastal')">Coastal</div>
+        <div class="selection-option" style="background-image: url('urban.jpg');" onclick="requestUpload('Urban')">Urban</div>
+      </div>
 
-  <div class="card form-step" id="step-4">
-    <h1>Target buyer profile?</h1>
-    <select id="buyer">
-      <option value="Military Family">Military Family</option>
-      <option value="Investor">Investor</option>
-      <option value="Retiree">Retiree</option>
-      <option value="First-Time Buyer">First-Time Buyer</option>
-    </select>
-    <button onclick="nextStep()">Next</button>
-  </div>
-
-  <div class="card form-step" id="step-5">
-    <h1>Property style or vibe?</h1>
-    <input type="text" id="style" placeholder="Modern farmhouse, South Texas charm..." />
-    <button onclick="submitForm()">Finish</button>
+      <div id="uploadBox" class="upload-box">
+        <p>Upload the front view image of your property so I can enhance it based on your selected audience and style. ✨</p>
+        <input type="file" accept="image/*" />
+      </div>
+    </div>
   </div>
 
   <script>
-    let step = 0;
-    function nextStep() {
-      if (step === 0) {
-        document.getElementById("welcome-screen").style.display = "none";
-      } else {
-        document.getElementById(`step-${step}`).classList.remove("active");
-      }
-      step++;
-      const next = document.getElementById(`step-${step}`);
-      if (next) next.classList.add("active");
+    function nextStage(type) {
+      document.getElementById('stage1').style.display = 'none';
+      document.getElementById('stage2').style.display = 'flex';
     }
 
-    function submitForm() {
-      const data = {
-        type: document.getElementById('property-type').value,
-        price: document.getElementById('price').value,
-        bedsbaths: document.getElementById('bedsbaths').value,
-        buyer: document.getElementById('buyer').value,
-        style: document.getElementById('style').value,
-      };
-      console.log("Collected data:", data);
-      alert("Thanks! Your listing is being refined.");
-      // Next: send data to FastAPI backend to generate AI output
+    function requestUpload(style) {
+      document.getElementById('stage2').style.display = 'none';
+      document.getElementById('uploadBox').style.display = 'block';
     }
   </script>
 </body>
