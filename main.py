@@ -1,17 +1,16 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
 
-# Serve templates from /templates
-templates = Jinja2Templates(directory="templates")
-
-# Optional: serve static files like CSS, JS, images (create a folder named 'static' if needed)
+# ✅ Mount static directory (this part is likely missing or broken)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Route to serve the main avatar-enhanced HTML page
+# ✅ Set up templates
+templates = Jinja2Templates(directory="templates")
+
 @app.get("/", response_class=HTMLResponse)
-async def get_avatar_ui(request: Request):
+async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
