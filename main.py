@@ -5,13 +5,13 @@ from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
 
-# ✅ Correct static folder mount — this line is critical
+# Mount static files like avatar.png and real.mp4
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# ✅ Load HTML templates from 'templates' folder
+# Use Jinja2 to serve HTML from templates
 templates = Jinja2Templates(directory="templates")
 
-# ✅ Route to serve index.html with support for Jinja2 + static
+# Serve the homepage
 @app.get("/", response_class=HTMLResponse)
 async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
