@@ -1,64 +1,79 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+# main.py
+import os
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from dotenv import load_dotenv
-import os
+from pydantic import BaseModel
 import openai
+from dotenv import load_dotenv
 
-# Load environment variables
+# 1) Load .env (make sure your .env contains OPENAI_API_KEY=sk-…)
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Initialize app
+openai.api_key = os.getenv("OPENAI_API_KEY", "")
+
 app = FastAPI()
 
-# Mount static folder
+# 2) Mount /static for avatar.png, real.mp4, favicon.ico, etc.
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Set up templates folder
+# 3) Jinja2 templates in templates/
 templates = Jinja2Templates(directory="templates")
 
-# Home route (renders index.html)
+
+# 4) Dummy favicon route (prevents browser 404s)
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    # If you have a real favicon at static/favicon.ico, use:
+    # return FileResponse("static/favicon.ico")
+    return Response(status_code=204)
+
+
+# 5) Serve index.html
 @app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
+async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# AI Tagline generation route
-@app.post("/generate")
-async def generate_tagline(
-    request: Request,
-    responses: str = Form(...),
-    city: str = Form(...),
-    zipcode: str = Form(...),
-    vibe: str = Form(...),
-    standOut: str = Form(...),
-    emotion: str = Form(...)
-):
+
+# 6) Schema for the tagline-generation payload
+class GeneratePayload(BaseModel):
+    responses: list[str]
+    city: str
+    zipcode: str
+
+
+# 7) Your AI-powered endpoint
+@app.post("/generate", response_class=JSONResponse)
+async def generate_tagline(payload: GeneratePayload):
+    """
+    Expects JSON:
+      {
+        "responses": ["Family","Quiet Suburb",…],
+        "city": "San Antonio",
+        "zipcode": "78209"
+      }
+    Returns:
+      { "tagline": "…AI‐crafted phrase…" }
+    """
+    # Example: call OpenAI to craft a tagline
+    user_text = (
+        "Create a catchy real‐estate tag line "
+        f"for a home in {payload.city}, {payload.zipcode}. "
+        "Use these details: " + ", ".join(payload.responses)
+    )
+
     try:
-        prompt = (
-            f"Create a real estate listing tagline using these traits: vibe='{vibe}', "
-            f"standOut='{standOut}', emotion='{emotion}', location='{city}, {zipcode}'. "
-            f"Target audience response: '{responses}'. The tagline should be one sentence, stylish, and enticing."
-        )
-
-        completion = openai.ChatCompletion.create(
+        completion = await openai.ChatCompletion.acreate(
             model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a creative real estate copywriter."},
-                {"role": "user", "content": prompt}
-            ],
+            messages=[{"role":"system","content":"You are a real‐estate marketing specialist."},
+                      {"role":"user","content": user_text}],
+            temperature=0.7,
             max_tokens=60,
-            temperature=0.8
         )
-
-        ai_tagline = completion.choices[0].message['content'].strip()
-        return JSONResponse({"tagline": ai_tagline})
-
+        tag = completion.choices[0].message.content.strip()
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        # On error, return a fallback
+        tag = "Experience luxury living tailored just for you."
 
-# For local dev testing (not needed in Render, but fine locally)
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=10000, reload=True)
+    return {"tagline": tag}
