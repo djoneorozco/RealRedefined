@@ -1,17 +1,54 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from flask import Flask, render_template, request, jsonify
+import openai
+import os
+from dotenv import load_dotenv
 
-app = FastAPI()
+# Load environment variables from .env file
+load_dotenv()
 
-# Mount static files like avatar.png and real.mp4
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Get your OpenAI API key from environment variable
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Use Jinja2 to serve HTML from templates
-templates = Jinja2Templates(directory="templates")
+app = Flask(__name__)
 
-# Serve the homepage
-@app.get("/", response_class=HTMLResponse)
-async def read_index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/generate-tagline', methods=['POST'])
+def generate_tagline():
+    data = request.get_json()
+    responses = data.get("responses", [])
+    area_code = data.get("area_code", "")
+    city = data.get("city", "")
+
+    prompt = f"""
+    Based on the following real estate listing details, craft a professional and engaging tagline that would appear on a property flyer. Make it appealing to potential buyers, concise, emotionally engaging, and optimized for marketing.
+
+    City: {city}
+    Area Code: {area_code}
+    Responses:
+    """
+    for i, answer in enumerate(responses, 1):
+        prompt += f"\n{i}. {answer}"
+
+    prompt += "\n\nTagline:"
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a seasoned real estate copywriter."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=50,
+            temperature=0.7
+        )
+        tagline = response.choices[0].message['content'].strip()
+        return jsonify({"tagline": tagline})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
