@@ -1,1 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RealRedefined.ai</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom right, #e6efff, #ffffff);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem;
+    }
 
+    .main-content {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .avatar-container {
+      flex: 1;
+      min-width: 320px;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      animation: fadeIn 1.5s ease;
+    }
+
+    .avatar-video {
+      width: 100%;
+      transform: scale(1.0);
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .intro-text {
+      font-size: 1.2rem;
+      color: #333;
+      text-align: center;
+    }
+
+    .selection-area {
+      flex: 2;
+      min-width: 320px;
+      max-width: 600px;
+    }
+
+    .banner-preview {
+      width: 100%;
+      height: 180px;
+      background-image: url('banner-mock.jpg');
+      background-size: cover;
+      background-position: center;
+      border-radius: 1rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    .selection-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .selection-option {
+      width: 150px;
+      height: 150px;
+      background-color: #fff;
+      background-size: cover;
+      background-position: center;
+      border-radius: 1rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 0.5rem;
+    }
+
+    .selection-option:hover {
+      transform: scale(1.05);
+    }
+
+    .response-box, .upload-box {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #f9fafb;
+      border-radius: 1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <div class="avatar-container">
+      <video class="avatar-video" autoplay muted playsinline controls>
+        <source src="real.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div class="intro-text">
+        <p>Welcome… I’ve been waiting to help you refine your next listing.✨<br>Let’s get started by identifying your ideal buyer and listing tone.</p>
+      </div>
+    </div>
+
+    <div class="selection-area">
+      <div class="banner-preview">"Cozy Studio Retreat – Perfect for First-Time Buyers"</div>
+
+      <div class="selection-grid" id="stage1">
+        <div class="selection-option" style="background-image: url('student.jpg');" onclick="nextStage('Student')">Student</div>
+        <div class="selection-option" style="background-image: url('couple.jpg');" onclick="nextStage('Couple')">Couple</div>
+        <div class="selection-option" style="background-image: url('family.jpg');" onclick="nextStage('Family')">Family</div>
+        <div class="selection-option" style="background-image: url('retiree.jpg');" onclick="nextStage('Retiree')">Retiree</div>
+        <div class="selection-option" style="background-image: url('remote.jpg');" onclick="nextStage('Remote Worker')">Remote</div>
+      </div>
+
+      <div id="stage2" class="selection-grid" style="display:none;">
+        <div class="selection-option" style="background-image: url('modern.jpg');" onclick="requestUpload('Modern')">Modern</div>
+        <div class="selection-option" style="background-image: url('rustic.jpg');" onclick="requestUpload('Rustic')">Rustic</div>
+        <div class="selection-option" style="background-image: url('coastal.jpg');" onclick="requestUpload('Coastal')">Coastal</div>
+        <div class="selection-option" style="background-image: url('urban.jpg');" onclick="requestUpload('Urban')">Urban</div>
+      </div>
+
+      <div id="uploadBox" class="upload-box">
+        <p>Upload the front view image of your property so I can enhance it based on your selected audience and style. ✨</p>
+        <input type="file" accept="image/*" />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function nextStage(type) {
+      document.getElementById('stage1').style.display = 'none';
+      document.getElementById('stage2').style.display = 'flex';
+    }
+
+    function requestUpload(style) {
+      document.getElementById('stage2').style.display = 'none';
+      document.getElementById('uploadBox').style.display = 'block';
+    }
+  </script>
+</body>
