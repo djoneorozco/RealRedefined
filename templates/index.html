@@ -3,144 +3,159 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RealRefined.ai</title>
+  <title>RealRedefined.ai</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f9eee5;
+      background: linear-gradient(to bottom right, #e6efff, #ffffff);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       flex-direction: column;
-    }
-    .overlay {
-      background-color: white;
-      border-radius: 16px;
+      align-items: center;
+      justify-content: flex-start;
       padding: 2rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      text-align: center;
-      max-width: 400px;
-      margin-bottom: 2rem;
     }
-    .avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 1rem;
+
+    .main-content {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      width: 100%;
     }
-    .btn {
-      background-color: #7a29cc;
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-    .question-section {
-      display: none;
+
+    .avatar-container {
+      flex: 1;
+      min-width: 320px;
+      max-width: 500px;
+      display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2rem;
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      animation: fadeIn 1.5s ease;
     }
-    .question {
-      font-weight: bold;
+
+    .avatar-image {
+      width: 100%;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .intro-text {
+      font-size: 1.2rem;
+      color: #333;
       text-align: center;
-      font-size: 1.1rem;
     }
-    .options {
+
+    .selection-area {
+      flex: 2;
+      min-width: 320px;
+      max-width: 600px;
+    }
+
+    .banner-preview {
+      width: 100%;
+      height: 180px;
+      background-image: url('banner-mock.jpg');
+      background-size: cover;
+      background-position: center;
+      border-radius: 1rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      margin-bottom: 2rem;
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
+      align-items: center;
       justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
     }
-    .option-btn {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
+
+    #realVideo {
+      display: none;
+      position: absolute;
+      top: 10%;
+      left: 5%;
+      width: 25%;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1;
     }
-    video {
-      width: 240px;
-      border-radius: 16px;
-      margin-bottom: -1rem;
+
+    .question, .tagline-box {
+      margin: 1rem 0;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div class="overlay" id="welcomeBox">
-    <img src="/static/avatar.png" class="avatar" />
-    <h2>Welcome to RealRefined.ai</h2>
-    <p>Your AI-powered partner for stunning listings that sell.</p>
-    <button class="btn" onclick="startExperience()">Get Started</button>
-  </div>
+  <div class="main-content">
+    <div class="avatar-container">
+      <img class="avatar-image" src="avatar.png" alt="Avatar" />
+      <div class="intro-text">
+        <p>Welcome… I’ve been waiting to help you refine your next listing.✨<br><button id="startBtn">Get Started</button></p>
+      </div>
+    </div>
 
-  <div class="question-section" id="questionBox">
-    <video id="agentVideo" src="/static/real.mp4" autoplay muted loop></video>
-    <div class="question" id="questionText">First, tell us about your listing goals...</div>
-    <div class="options" id="optionButtons"></div>
+    <video id="realVideo" autoplay muted playsinline controls>
+      <source src="real.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+
+    <div class="selection-area">
+      <div id="questionnaire" style="display:none;">
+        <form id="listingForm">
+          <div class="question">
+            <label>1. Your city: <input type="text" name="city" required /></label>
+            <label>Area code (e.g. ZIP or phone): <input type="text" name="areaCode" required /></label>
+          </div>
+          <div class="question"><label>2. Target audience (e.g. families, investors):<br/><input type="text" name="targetAudience" required/></label></div>
+          <div class="question"><label>3. The home’s best selling features:<br/><textarea name="bestFeatures" required></textarea></label></div>
+          <div class="question"><label>4. How was the listing price determined?<br/><textarea name="priceDetermination" required></textarea></label></div>
+          <div class="question"><label>5. Desired list-to-sale ratio goal (%):<br/><input type="text" name="listToSaleRatio" required/></label></div>
+          <div class="question"><label>6. Expected days on market:<br/><input type="text" name="daysOnMarket" required/></label></div>
+          <div class="question"><label>7. Planned marketing strategies (e.g. pro photos, virtual tour):<br/><textarea name="marketingPlan" required></textarea></label></div>
+          <div class="question"><label>8. What makes you the ideal agent for this listing?<br/><textarea name="USP" required></textarea></label></div>
+          <div class="question"><label>9. Suggested staging or upgrades:<br/><textarea name="stagingSuggestions" required></textarea></label></div>
+          <div class="question"><label>10. Similar profile sold before (timeline & price range):<br/><textarea name="similarSold" required></textarea></label></div>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
   </div>
 
   <script>
-    const questions = [
-      {
-        text: "Who's the perfect buyer for this home?",
-        options: ["Family", "Retiree", "Military", "Student", "Remote Worker"]
-      },
-      {
-        text: "What’s the surrounding area like?",
-        options: ["Quiet Suburb", "Urban", "Gated Community", "Rural", "Walkable Shops"]
-      },
-      {
-        text: "What vibe does the home give off?",
-        options: ["Cozy", "Grand", "Peaceful", "Artistic", "Sleek"]
-      },
-      {
-        text: "What makes this home stand out?",
-        options: ["Scenic Views", "Renovated Kitchen", "Large Backyard", "Open Floor Plan", "Smart Home Features"]
-      },
-      {
-        text: "What kind of lifestyle does this home support?",
-        options: ["Entertaining", "Relaxation", "Active Family Life", "Work-from-Home", "Retirement Ready"]
-      }
-    ];
+    document.getElementById('startBtn').addEventListener('click', () => {
+      document.querySelector('.intro-text').style.display = 'none';
+      document.getElementById('questionnaire').style.display = 'block';
+    });
 
-    let currentQuestion = 0;
+    document.getElementById('listingForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
 
-    function startExperience() {
-      document.getElementById("welcomeBox").style.display = "none";
-      document.getElementById("questionBox").style.display = "flex";
-      showQuestion();
-    }
+      const video = document.getElementById('realVideo');
+      video.style.display = 'block';
+      video.play(); video.muted = true;
 
-    function showQuestion() {
-      const q = questions[currentQuestion];
-      document.getElementById("questionText").innerText = q.text;
-      const optionsContainer = document.getElementById("optionButtons");
-      optionsContainer.innerHTML = "";
-      q.options.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.innerText = opt;
-        btn.className = "option-btn";
-        btn.onclick = () => nextQuestion();
-        optionsContainer.appendChild(btn);
-      });
-    }
+      let tagline = `${data.city} ${data.areaCode} • ${data.bestFeatures.split(',')[0] || ''} • Perfect for ${data.targetAudience}.`;
 
-    function nextQuestion() {
-      currentQuestion++;
-      if (currentQuestion < questions.length) {
-        showQuestion();
-      } else {
-        document.getElementById("questionText").innerText = "Thanks! We're generating your listing magic...";
-        document.getElementById("optionButtons").innerHTML = "";
-      }
-    }
+      const output = document.createElement('div');
+      output.className = 'tagline-box';
+      output.innerHTML = `<h2>Your Listing Tagline:</h2><p>${tagline}</p>`;
+      document.getElementById('questionnaire').appendChild(output);
+    });
   </script>
 </body>
 </html>
