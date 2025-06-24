@@ -16,6 +16,7 @@
       justify-content: center;
       align-items: center;
     }
+
     .card {
       background: white;
       border-radius: 20px;
@@ -23,45 +24,61 @@
       max-width: 500px;
       text-align: center;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
+    .card:hover {
+      transform: scale(1.015);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+
     .avatar {
       width: 120px;
       height: 120px;
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
+
     h1 {
-      font-size: 1.8rem;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: #3b2d2f;
       margin-bottom: 0.5rem;
-      color: #333;
     }
+
     p {
+      font-weight: 400;
+      color: #5f4b4c;
       font-size: 1rem;
       margin-bottom: 1.5rem;
-      color: #666;
     }
-    button {
-      padding: 0.8rem 1.5rem;
-      background-color: #5c3d2e;
+
+    .button {
+      background-color: #5a3621;
       color: white;
       border: none;
-      border-radius: 10px;
+      padding: 0.8rem 1.6rem;
+      border-radius: 8px;
       font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
-    button:hover {
-      background-color: #3d281d;
+
+    .button:hover {
+      background-color: #7b4a2c;
+      transform: scale(1.03);
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <img src="https://cdn.midjourney.com/7ff783fd-5075-4036-8a33-f87b9aa6015f/0_1.png" alt="Digital Realtor" class="avatar" />
+    <img src="{{ url_for('static', path='avatar.png') }}" alt="Digital Realtor" class="avatar" />
     <h1>Hi there! I'm your Listing Assistant.</h1>
     <p>Let’s refine your property listing to attract the perfect buyer. Ready to begin?</p>
-    <button onclick="alert('Let’s start refining your listing!')">Get Started</button>
+    <button class="button">Get Started</button>
   </div>
 </body>
 </html>
