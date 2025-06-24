@@ -8,98 +8,142 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #f7f0ea;
+      background: #f7ede8;
+      overflow-x: hidden;
+    }
+
+    .container {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow: hidden;
-    }
-
-    #videoContainer {
-      display: none;
-      position: absolute;
-      top: 20%;
-      left: 10%;
+      position: relative;
       z-index: 1;
     }
 
-    #videoContainer video {
-      width: 300px;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .card {
-      position: relative;
-      z-index: 2;
-      background: #fff;
+    .welcome-box {
+      background: white;
       padding: 2rem;
       border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       max-width: 400px;
+      text-align: center;
+      transition: opacity 0.5s ease-in-out;
     }
 
-    .avatar {
-      width: 80px;
-      height: 80px;
+    .welcome-box img {
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
-      object-fit: cover;
       margin-bottom: 1rem;
     }
 
-    h1 {
-      font-size: 1.6rem;
-      margin: 0.5rem 0;
+    .welcome-box h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
     }
 
-    p {
-      font-size: 1rem;
+    .welcome-box p {
       color: #555;
     }
 
-    .button {
-      margin-top: 1.5rem;
-      background-color: #7d2ae8;
+    .btn {
+      background: #7f2fff;
       color: white;
       border: none;
-      padding: 0.8rem 1.5rem;
+      padding: 0.75rem 1.5rem;
       border-radius: 8px;
-      font-size: 1rem;
       cursor: pointer;
+      margin-top: 1rem;
     }
 
-    #questionSection {
+    .video-avatar {
+      display: none;
+      margin-left: 5rem;
+      height: 500px;
+      border-radius: 12px;
+    }
+
+    .question-box {
       display: none;
       margin-top: 2rem;
-      font-size: 1rem;
-      color: #333;
+    }
+
+    .selection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .selection-option {
+      padding: 1rem;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      text-align: center;
+      font-weight: bold;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .selection-option:hover {
+      transform: translateY(-3px);
     }
   </style>
 </head>
 <body>
-  <div id="videoContainer">
-    <video id="introVideo" src="/static/real.mp4" autoplay muted playsinline></video>
+  <div class="container">
+    <video class="video-avatar" id="introVideo" muted>
+      <source src="/static/real.mp4" type="video/mp4">
+    </video>
+
+    <div class="welcome-box" id="welcome">
+      <img src="/static/avatar.png" alt="Avatar">
+      <h1>Welcome to RealRefined.ai</h1>
+      <p>Your AI-powered partner for stunning listings that sell.</p>
+      <button class="btn" onclick="startExperience()">Get Started</button>
+    </div>
   </div>
 
-  <div class="card" id="mainCard">
-    <img src="/static/avatar.png" alt="Avatar" class="avatar" />
-    <h1>Welcome to RealRefined.ai</h1>
-    <p>Your AI-powered partner for stunning listings that sell.</p>
-    <button class="button" onclick="startExperience()">Get Started</button>
+  <div class="container">
+    <div class="question-box" id="questionStage">
+      <h2>First, tell us about your listing goals...</h2>
 
-    <div id="questionSection">
-      <p>First, tell us about your listing goals...</p>
-      <!-- Future dynamic questions will appear here -->
+      <div id="stage1" class="selection-grid">
+        <div class="selection-option" onclick="nextStage('Student')">Student</div>
+        <div class="selection-option" onclick="nextStage('Couple')">Couple</div>
+        <div class="selection-option" onclick="nextStage('Family')">Family</div>
+        <div class="selection-option" onclick="nextStage('Retiree')">Retiree</div>
+        <div class="selection-option" onclick="nextStage('Remote Worker')">Remote Worker</div>
+      </div>
+
+      <div id="stage2" class="selection-grid" style="display:none;">
+        <div class="selection-option" onclick="finishSelection('Modern')">Modern</div>
+        <div class="selection-option" onclick="finishSelection('Rustic')">Rustic</div>
+        <div class="selection-option" onclick="finishSelection('Coastal')">Coastal</div>
+        <div class="selection-option" onclick="finishSelection('Urban')">Urban</div>
+      </div>
     </div>
   </div>
 
   <script>
     function startExperience() {
-      document.getElementById('videoContainer').style.display = 'block';
-      document.getElementById('questionSection').style.display = 'block';
+      document.getElementById('welcome').style.display = 'none';
+      document.getElementById('introVideo').style.display = 'block';
+      document.getElementById('introVideo').play();
+      document.getElementById('questionStage').style.display = 'block';
+    }
+
+    function nextStage(target) {
+      console.log("Target audience:", target);
+      document.getElementById('stage1').style.display = 'none';
+      document.getElementById('stage2').style.display = 'grid';
+    }
+
+    function finishSelection(style) {
+      console.log("Selected style:", style);
+      alert(`Thanks! You're targeting a listing for a ${style} audience.`);
     }
   </script>
 </body>
