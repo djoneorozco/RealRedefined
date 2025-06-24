@@ -20,6 +20,16 @@
       justify-content: center;
     }
 
+    .background-video {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 60%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
     .intro-box {
       background: white;
       padding: 2rem;
@@ -34,82 +44,55 @@
 
     .intro-box img {
       width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
+      height: auto;
       margin-bottom: 1rem;
     }
 
-    .intro-box h1 {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #3c2f2f;
-      margin-bottom: 0.5rem;
+    h1 {
+      margin: 0;
+      font-size: 2rem;
     }
 
-    .intro-box p {
-      color: #555;
-      font-size: 0.95rem;
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
     }
 
-    .btn {
-      margin-top: 1.2rem;
-      padding: 0.7rem 1.5rem;
-      background-color: #6b4026;
+    button {
+      background-color: #4a00e0;
       color: white;
+      padding: 0.8rem 1.6rem;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: bold;
+      font-size: 1rem;
       transition: background-color 0.3s;
     }
 
-    .btn:hover {
-      background-color: #553321;
+    button:hover {
+      background-color: #3700b3;
     }
 
-    .video-background {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 60%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      transition: opacity 1s ease;
-      z-index: 1;
-    }
-
-    .video-visible {
-      opacity: 1;
+    @media (max-width: 768px) {
+      .background-video {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Background Video (initially hidden) -->
-    <video id="bgVideo" class="video-background" autoplay muted loop playsinline>
-      <source src="{{ url_for('static', filename='real.mp4') }}" type="video/mp4" />
-      Your browser does not support the video tag.
+    <video autoplay muted loop class="background-video">
+      <source src="/static/real.mp4" type="video/mp4" />
     </video>
-
-    <!-- Assistant Box -->
     <div class="intro-box">
-      <img src="{{ url_for('static', filename='avatar.png') }}" alt="Digital Realtor" />
-      <h1>Hi there! I'm your Listing Assistant.</h1>
-      <p>Let’s refine your property listing to attract the perfect buyer. Ready to begin?</p>
-      <button class="btn" onclick="startExperience()">Get Started</button>
+      <img src="/static/avatar.png" alt="Digital Realtor" />
+      <h1>Welcome to RealRefined.ai</h1>
+      <p>Your AI-powered partner for stunning listings that sell.</p>
+      <form action="/questions" method="get">
+        <button type="submit">Get Started</button>
+      </form>
     </div>
   </div>
-
-  <script>
-    function startExperience() {
-      const video = document.getElementById('bgVideo');
-      video.classList.add('video-visible');
-
-      // Later we'll replace this with showing Q&A form
-      console.log("Get Started clicked – video revealed.");
-    }
-  </script>
 </body>
 </html>
