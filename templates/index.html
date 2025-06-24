@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RealRefined.ai</title>
   <style>
     body {
@@ -22,7 +22,6 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
       text-align: center;
       max-width: 400px;
-      margin-bottom: 2rem;
     }
     .avatar {
       width: 80px;
@@ -41,15 +40,21 @@
       cursor: pointer;
       margin-top: 1rem;
     }
-    .question-section {
+    .quiz-container {
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 2rem;
+      gap: 1.5rem;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    video {
+      width: 240px;
+      border-radius: 16px;
     }
     .question {
       font-weight: bold;
-      text-align: center;
       font-size: 1.1rem;
     }
     .options {
@@ -59,134 +64,128 @@
       justify-content: center;
     }
     .option-btn {
-      background-color: #fff;
+      background: #fff;
       border: 1px solid #ccc;
       padding: 0.5rem 1rem;
       border-radius: 6px;
       cursor: pointer;
     }
-    video {
-      width: 240px;
-      border-radius: 16px;
-      margin-bottom: -1rem;
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 300px;
+    }
+    .input-group input {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
     #taglineBox {
-      margin-top: 1.5rem;
+      margin-top: 2rem;
+      font-size: 1.2rem;
       font-style: italic;
-      font-weight: bold;
-      color: #333;
+      color: #444;
     }
   </style>
 </head>
 <body>
+
   <div class="overlay" id="welcomeBox">
     <img src="/static/avatar.png" class="avatar" />
     <h2>Welcome to RealRefined.ai</h2>
     <p>Your AI-powered partner for stunning listings that sell.</p>
-    <button class="btn" onclick="startExperience()">Get Started</button>
+    <button class="btn" onclick="startQuiz()">Get Started</button>
   </div>
 
-  <div class="question-section" id="questionBox">
-    <video id="agentVideo" src="/static/real.mp4" autoplay muted loop></video>
-    <div class="question" id="questionText">First, tell us about your listing goals...</div>
-    <div class="options" id="optionButtons"></div>
+  <div class="quiz-container" id="quizBox">
+    <video id="agentVideo" src="/static/real.mp4" muted loop></video>
+    <div class="question" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="input-group" id="cityZipGroup" style="display:none;">
+      <input type="text" id="cityInput" placeholder="City (e.g. San Antonio)" />
+      <input type="text" id="zipInput" placeholder="ZIP Code (e.g. 78205)" />
+      <button class="btn" onclick="submitAll()">Finish & Generate Tagline</button>
+    </div>
     <div id="taglineBox"></div>
   </div>
 
   <script>
     const questions = [
-      {
-        name: "buyer",
-        text: "Who's the perfect buyer for this home?",
-        options: ["Family", "Retiree", "Military", "Student", "Remote Worker"]
-      },
-      {
-        name: "area",
-        text: "What’s the surrounding area like?",
-        options: ["Quiet Suburb", "Urban", "Gated Community", "Rural", "Walkable Shops"]
-      },
-      {
-        name: "vibe",
-        text: "What vibe does the home give off?",
-        options: ["Cozy", "Grand", "Peaceful", "Artistic", "Sleek"]
-      },
-      {
-        name: "standOut",
-        text: "What makes this home stand out?",
-        options: ["Scenic Views", "Renovated Kitchen", "Large Backyard", "Open Floor Plan", "Smart Home Features"]
-      },
-      {
-        name: "lifestyle",
-        text: "What kind of lifestyle does this home support?",
-        options: ["Entertaining", "Relaxation", "Active Family Life", "Work-from-Home", "Retirement Ready"]
-      },
-      {
-        name: "emotion",
-        text: "What emotion do you want the buyer to feel?",
-        options: ["Excitement", "Calm", "Inspiration", "Luxury", "Comfort"]
-      },
-      {
-        name: "city",
-        text: "Which city is this property in?",
-        options: ["San Antonio", "Austin", "Dallas", "Houston", "El Paso"]
-      },
-      {
-        name: "zip",
-        text: "What is the zip code?",
-        options: ["78230", "78701", "75201", "77002", "79901"]
-      }
+      { text: "Who's the perfect buyer for this home?", options: ["Family","Retiree","Investor","First-Time Buyer","Remote Worker"] },
+      { text: "What’s the surrounding area like?",         options: ["Quiet Suburb","Urban","Gated Community","Rural","Walkable Shops"] },
+      { text: "What vibe does the home give off?",          options: ["Cozy","Grand","Peaceful","Artistic","Sleek"] },
+      { text: "What makes this home stand out?",            options: ["Scenic Views","Renovated Kitchen","Large Backyard","Open Plan","Smart Home"] },
+      { text: "What lifestyle does this home support?",      options: ["Entertaining","Relaxation","Family-Friendly","Work-From-Home","Retirement"] },
+      { text: "Describe the interior style.",               options: ["Modern","Rustic","Coastal","Industrial","Traditional"] },
+      { text: "How’s the natural light?",                    options: ["Bright & Sunny","Soft & Cozy","Filtered","Dramatic","Minimal"] },
+      { text: "What’s the outdoor space like?",              options: ["Patio/Deck","Pool/Lanai","Garden","Balcony","Spacious Yard"] },
+      { text: "Which amenity is key?",                       options: ["Gym","Fireplace","Garage","Walk-In Closet","Home Office"] },
+      { text: "How would you summarize its appeal?",         options: ["Luxury Retreat","Urban Oasis","Country Charm","Eco-Friendly","Tech-Savvy"] },
     ];
 
-    let answers = {};
-    let currentQuestion = 0;
+    let answers = [];
+    let current = 0;
 
-    function startExperience() {
+    function startQuiz(){
       document.getElementById("welcomeBox").style.display = "none";
-      document.getElementById("questionBox").style.display = "flex";
+      document.getElementById("quizBox").style.display = "flex";
       showQuestion();
     }
 
-    function showQuestion() {
-      const q = questions[currentQuestion];
+    function showQuestion(){
+      const q = questions[current];
       document.getElementById("questionText").innerText = q.text;
-      const optionsContainer = document.getElementById("optionButtons");
-      optionsContainer.innerHTML = "";
-      q.options.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.innerText = opt;
-        btn.className = "option-btn";
-        btn.onclick = () => {
-          answers[q.name] = opt;
-          nextQuestion();
-        };
-        optionsContainer.appendChild(btn);
+      const opts = document.getElementById("optionsContainer");
+      opts.innerHTML = "";
+      q.options.forEach(o=>{
+        const b = document.createElement("button");
+        b.className = "option-btn";
+        b.innerText = o;
+        b.onclick = ()=>{ answers.push(o); nextStep(); };
+        opts.appendChild(b);
       });
     }
 
-    function nextQuestion() {
-      currentQuestion++;
-      if (currentQuestion < questions.length) {
+    function nextStep(){
+      current++;
+      if(current < questions.length){
         showQuestion();
       } else {
-        generateTagline();
+        // show city/zip inputs
+        document.getElementById("questionText").innerText = "Almost done — tell us your City & ZIP:";
+        document.getElementById("optionsContainer").style.display = "none";
+        document.getElementById("cityZipGroup").style.display = "flex";
       }
     }
 
-    async function generateTagline() {
-      document.getElementById("questionText").innerText = "Generating your AI-crafted tagline...";
-      document.getElementById("optionButtons").innerHTML = "";
-
-      const response = await fetch("/generate_tagline", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(answers)
-      });
-
-      const data = await response.json();
-      document.getElementById("taglineBox").innerText = data.tagline || "Couldn't generate a tagline.";
+    async function submitAll(){
+      const city = document.getElementById("cityInput").value.trim();
+      const zipcode = document.getElementById("zipInput").value.trim();
+      if(!city||!zipcode){
+        alert("Please enter both City and ZIP code.");
+        return;
+      }
+      // show loading tagline
+      document.getElementById("taglineBox").innerText = "Generating your AI-crafted tagline...";
+      try {
+        const res = await fetch("/generate", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ responses: answers, city, zipcode })
+        });
+        const data = await res.json();
+        if(data.tagline){
+          document.getElementById("taglineBox").innerText = `"${data.tagline}"`;
+        } else {
+          document.getElementById("taglineBox").innerText = "Sorry, could not generate a tagline.";
+        }
+      } catch(e){
+        document.getElementById("taglineBox").innerText = "Error: " + e.message;
+      }
     }
   </script>
+
 </body>
 </html>
