@@ -1,60 +1,55 @@
-import os
 from flask import Flask, render_template, request, jsonify
+import os
 from dotenv import load_dotenv
 import openai
 
-# Load environment variables from .env file
+# Load environment variables from .env
 load_dotenv()
-
-# Set OpenAI API key securely
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# Home route
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-# API route to generate tagline
-@app.route('/generate', methods=['POST'])
-def generate():
+@app.route("/generate", methods=["POST"])
+def generate_tagline():
+    data = request.get_json()
+    responses = data.get("responses", [])
+    city = data.get("city", "")
+    zipcode = data.get("zipcode", "")
+
+    prompt = f"""
+You are a real estate marketing expert. Write a captivating, professional, and emotionally engaging tagline for a property listing based on the following answers from a realtor:
+
+- Ideal buyer: {responses[0]}
+- Surrounding area: {responses[1]}
+- Vibe of the home: {responses[2]}
+- Stand-out feature: {responses[3]}
+- Lifestyle supported: {responses[4]}
+- Interior highlights: {responses[5]}
+- Exterior highlights: {responses[6]}
+- Nearby attractions: {responses[7]}
+- School quality or family-friendly factor: {responses[8]}
+- What makes this home unforgettable: {responses[9]}
+
+Location: {city}, ZIP code {zipcode}
+
+Avoid clichés. Output just the tagline.
+"""
+
     try:
-        data = request.get_json()
-        questions = data.get('questions', [])
-        area_code = data.get('area_code', '00000')
-        city = data.get('city', 'Unknown City')
-
-        # Combine input for prompt
-        prompt = (
-            f"You're a real estate marketing expert AI. Based on the following listing details, "
-            f"generate a short, emotionally engaging, high-converting tagline that would appeal to potential buyers in {city} ({area_code}):\n\n"
-        )
-
-        for idx, q in enumerate(questions, 1):
-            prompt += f"{idx}. {q}\n"
-
-        prompt += "\nTagline:"
-
-        # Call OpenAI API
-        response = openai.ChatCompletion.create(
+        completion = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are a creative and persuasive real estate copywriter."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=60
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=60,
+            temperature=0.7
         )
-
-        # Extract and return the generated tagline
-        tagline = response['choices'][0]['message']['content'].strip()
+        tagline = completion.choices[0].message["content"].strip()
         return jsonify({"tagline": tagline})
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Run the app
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=10000)
