@@ -1,54 +1,60 @@
-from flask import Flask, render_template, request, jsonify
-import openai
 import os
+from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
+import openai
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Get your OpenAI API key from environment variable
+# Set OpenAI API key securely
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+# Initialize Flask app
 app = Flask(__name__)
 
+# Home route
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/generate-tagline', methods=['POST'])
-def generate_tagline():
-    data = request.get_json()
-    responses = data.get("responses", [])
-    area_code = data.get("area_code", "")
-    city = data.get("city", "")
-
-    prompt = f"""
-    Based on the following real estate listing details, craft a professional and engaging tagline that would appear on a property flyer. Make it appealing to potential buyers, concise, emotionally engaging, and optimized for marketing.
-
-    City: {city}
-    Area Code: {area_code}
-    Responses:
-    """
-    for i, answer in enumerate(responses, 1):
-        prompt += f"\n{i}. {answer}"
-
-    prompt += "\n\nTagline:"
-
+# API route to generate tagline
+@app.route('/generate', methods=['POST'])
+def generate():
     try:
+        data = request.get_json()
+        questions = data.get('questions', [])
+        area_code = data.get('area_code', '00000')
+        city = data.get('city', 'Unknown City')
+
+        # Combine input for prompt
+        prompt = (
+            f"You're a real estate marketing expert AI. Based on the following listing details, "
+            f"generate a short, emotionally engaging, high-converting tagline that would appeal to potential buyers in {city} ({area_code}):\n\n"
+        )
+
+        for idx, q in enumerate(questions, 1):
+            prompt += f"{idx}. {q}\n"
+
+        prompt += "\nTagline:"
+
+        # Call OpenAI API
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a seasoned real estate copywriter."},
+                {"role": "system", "content": "You are a creative and persuasive real estate copywriter."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=50,
-            temperature=0.7
+            temperature=0.7,
+            max_tokens=60
         )
-        tagline = response.choices[0].message['content'].strip()
+
+        # Extract and return the generated tagline
+        tagline = response['choices'][0]['message']['content'].strip()
         return jsonify({"tagline": tagline})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
+# Run the app
+if __name__ == "__main__":
     app.run(debug=True)
