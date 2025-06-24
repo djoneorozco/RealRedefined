@@ -2,103 +2,104 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RealRefined.ai</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #f3e8dc, #f7f4f2);
-      overflow-x: hidden;
-    }
-
-    .container {
-      position: relative;
-      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #f7f0ea;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    .intro-box {
-      background: white;
-      padding: 2rem;
-      border-radius: 20px;
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-      text-align: center;
+    #videoContainer {
+      display: none;
+      position: absolute;
+      top: 20%;
+      left: 10%;
+      z-index: 1;
+    }
+
+    #videoContainer video {
+      width: 300px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .card {
       position: relative;
       z-index: 2;
-      width: 90%;
-      max-width: 500px;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 400px;
     }
 
-    .intro-box img {
+    .avatar {
       width: 80px;
       height: 80px;
       border-radius: 50%;
+      object-fit: cover;
       margin-bottom: 1rem;
     }
 
-    .intro-box h1 {
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
+    h1 {
+      font-size: 1.6rem;
+      margin: 0.5rem 0;
     }
 
-    .intro-box p {
+    p {
       font-size: 1rem;
-      margin-bottom: 1.5rem;
+      color: #555;
     }
 
-    .intro-box button {
-      background-color: #6a0dad;
+    .button {
+      margin-top: 1.5rem;
+      background-color: #7d2ae8;
       color: white;
-      padding: 0.7rem 1.5rem;
-      font-size: 1rem;
       border: none;
-      border-radius: 10px;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
 
-    .intro-box button:hover {
-      background-color: #4b0082;
-    }
-
-    video#bgVideo {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
-      z-index: 0;
-      display: none; /* Hide initially */
+    #questionSection {
+      display: none;
+      margin-top: 2rem;
+      font-size: 1rem;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="intro-box" id="intro">
-      <img src="/static/avatar.png" alt="Avatar" />
-      <h1>Welcome to <strong>RealRefined.ai</strong></h1>
-      <p>Your AI-powered partner for stunning listings that sell.</p>
-      <button onclick="startExperience()">Get Started</button>
+  <div id="videoContainer">
+    <video id="introVideo" src="/static/real.mp4" autoplay muted playsinline></video>
+  </div>
+
+  <div class="card" id="mainCard">
+    <img src="/static/avatar.png" alt="Avatar" class="avatar" />
+    <h1>Welcome to RealRefined.ai</h1>
+    <p>Your AI-powered partner for stunning listings that sell.</p>
+    <button class="button" onclick="startExperience()">Get Started</button>
+
+    <div id="questionSection">
+      <p>First, tell us about your listing goals...</p>
+      <!-- Future dynamic questions will appear here -->
     </div>
-    <video id="bgVideo" autoplay loop controls>
-      <source src="/static/real.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
   </div>
 
   <script>
     function startExperience() {
-      document.getElementById('intro').style.display = 'none';
-      const video = document.getElementById('bgVideo');
-      video.style.display = 'block';
-      video.muted = false; // unmute
-      video.play().catch(error => {
-        console.log("Autoplay issue:", error);
-      });
+      document.getElementById('videoContainer').style.display = 'block';
+      document.getElementById('questionSection').style.display = 'block';
     }
   </script>
 </body>
