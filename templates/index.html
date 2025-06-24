@@ -3,82 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RealRedefined.ai – AI Listing Optimizer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
+  <title>RealRedefined.ai – Listing Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Outfit', sans-serif;
-      background: linear-gradient(to right, #f0e8dc, #fefaf5);
       margin: 0;
       padding: 0;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(to right, #f0e8dc, #fefaf5);
       display: flex;
-      height: 100vh;
       justify-content: center;
       align-items: center;
+      height: 100vh;
     }
-
     .card {
       background: white;
       border-radius: 20px;
       padding: 2rem;
-      max-width: 500px;
+      max-width: 520px;
+      width: 90%;
       text-align: center;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
-
-    .card:hover {
-      transform: scale(1.015);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-    }
-
     .avatar {
       width: 120px;
       height: 120px;
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 1rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
-
     h1 {
       font-weight: 800;
-      font-size: 1.6rem;
-      color: #3b2d2f;
-      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
     }
-
     p {
-      font-weight: 400;
-      color: #5f4b4c;
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 2rem;
     }
-
-    .button {
-      background-color: #5a3621;
+    button {
+      background: #5b3e2b;
       color: white;
+      padding: 0.7rem 1.2rem;
       border: none;
-      padding: 0.8rem 1.6rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 1rem;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-weight: 600;
+      transition: background 0.3s ease;
     }
-
-    .button:hover {
-      background-color: #7b4a2c;
-      transform: scale(1.03);
+    button:hover {
+      background: #3a271c;
+    }
+    .form-step {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+    .form-step.active {
+      display: flex;
+    }
+    input, select {
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin: 1rem 0;
+      width: 80%;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <img src="{{ url_for('static', path='avatar.png') }}" alt="Digital Realtor" class="avatar" />
+  <div class="card" id="welcome-screen">
+    <img src="/static/avatar.png" alt="Digital Realtor" class="avatar">
     <h1>Hi there! I'm your Listing Assistant.</h1>
     <p>Let’s refine your property listing to attract the perfect buyer. Ready to begin?</p>
-    <button class="button">Get Started</button>
+    <button onclick="nextStep()">Get Started</button>
   </div>
+
+  <div class="card form-step" id="step-1">
+    <h1>What type of property?</h1>
+    <select id="property-type">
+      <option value="House">House</option>
+      <option value="Condo">Condo</option>
+      <option value="Townhome">Townhome</option>
+      <option value="Land">Land</option>
+    </select>
+    <button onclick="nextStep()">Next</button>
+  </div>
+
+  <div class="card form-step" id="step-2">
+    <h1>What’s the listing price?</h1>
+    <input type="text" id="price" placeholder="$150,000" />
+    <button onclick="nextStep()">Next</button>
+  </div>
+
+  <div class="card form-step" id="step-3">
+    <h1>How many bedrooms and baths?</h1>
+    <input type="text" id="bedsbaths" placeholder="3 bed / 2 bath" />
+    <button onclick="nextStep()">Next</button>
+  </div>
+
+  <div class="card form-step" id="step-4">
+    <h1>Target buyer profile?</h1>
+    <select id="buyer">
+      <option value="Military Family">Military Family</option>
+      <option value="Investor">Investor</option>
+      <option value="Retiree">Retiree</option>
+      <option value="First-Time Buyer">First-Time Buyer</option>
+    </select>
+    <button onclick="nextStep()">Next</button>
+  </div>
+
+  <div class="card form-step" id="step-5">
+    <h1>Property style or vibe?</h1>
+    <input type="text" id="style" placeholder="Modern farmhouse, South Texas charm..." />
+    <button onclick="submitForm()">Finish</button>
+  </div>
+
+  <script>
+    let step = 0;
+    function nextStep() {
+      if (step === 0) {
+        document.getElementById("welcome-screen").style.display = "none";
+      } else {
+        document.getElementById(`step-${step}`).classList.remove("active");
+      }
+      step++;
+      const next = document.getElementById(`step-${step}`);
+      if (next) next.classList.add("active");
+    }
+
+    function submitForm() {
+      const data = {
+        type: document.getElementById('property-type').value,
+        price: document.getElementById('price').value,
+        bedsbaths: document.getElementById('bedsbaths').value,
+        buyer: document.getElementById('buyer').value,
+        style: document.getElementById('style').value,
+      };
+      console.log("Collected data:", data);
+      alert("Thanks! Your listing is being refined.");
+      // Next: send data to FastAPI backend to generate AI output
+    }
+  </script>
 </body>
 </html>
