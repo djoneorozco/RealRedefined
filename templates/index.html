@@ -32,9 +32,9 @@
       box-shadow: 0 12px 24px rgba(0,0,0,0.15);
     }
 
-    .avatar-video {
-      width: 140px;
-      height: 140px;
+    .avatar {
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 1rem;
@@ -75,10 +75,7 @@
 </head>
 <body>
   <div class="card">
-    <video class="avatar-video" autoplay muted loop playsinline>
-      <source src="{{ url_for('static', path='real.mp4') }}" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
+    <img src="{{ url_for('static', path='avatar.png') }}" alt="Digital Realtor" class="avatar" />
     <h1>Hi there! I'm your Listing Assistant.</h1>
     <p>Let’s refine your property listing to attract the perfect buyer. Ready to begin?</p>
     <button class="button">Get Started</button>
