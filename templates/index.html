@@ -8,142 +8,138 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f7ede8;
-      overflow-x: hidden;
-    }
-
-    .container {
+      background-color: #f9eee5;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      position: relative;
-      z-index: 1;
+      flex-direction: column;
     }
-
-    .welcome-box {
-      background: white;
+    .overlay {
+      background-color: white;
+      border-radius: 16px;
       padding: 2rem;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
       text-align: center;
-      transition: opacity 0.5s ease-in-out;
+      max-width: 400px;
+      margin-bottom: 2rem;
     }
-
-    .welcome-box img {
-      width: 70px;
-      height: 70px;
+    .avatar {
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
+      object-fit: cover;
       margin-bottom: 1rem;
     }
-
-    .welcome-box h1 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .welcome-box p {
-      color: #555;
-    }
-
     .btn {
-      background: #7f2fff;
+      background-color: #7a29cc;
       color: white;
       border: none;
-      padding: 0.75rem 1.5rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
       border-radius: 8px;
       cursor: pointer;
       margin-top: 1rem;
     }
-
-    .video-avatar {
+    .question-section {
       display: none;
-      margin-left: 5rem;
-      height: 500px;
-      border-radius: 12px;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
     }
-
-    .question-box {
-      display: none;
-      margin-top: 2rem;
-    }
-
-    .selection-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .selection-option {
-      padding: 1rem;
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-      text-align: center;
+    .question {
       font-weight: bold;
-      transition: transform 0.2s ease-in-out;
+      text-align: center;
+      font-size: 1.1rem;
     }
-
-    .selection-option:hover {
-      transform: translateY(-3px);
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .option-btn {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    video {
+      width: 240px;
+      border-radius: 16px;
+      margin-bottom: -1rem;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <video class="video-avatar" id="introVideo" muted>
-      <source src="/static/real.mp4" type="video/mp4">
-    </video>
-
-    <div class="welcome-box" id="welcome">
-      <img src="/static/avatar.png" alt="Avatar">
-      <h1>Welcome to RealRefined.ai</h1>
-      <p>Your AI-powered partner for stunning listings that sell.</p>
-      <button class="btn" onclick="startExperience()">Get Started</button>
-    </div>
+  <div class="overlay" id="welcomeBox">
+    <img src="/static/avatar.png" class="avatar" />
+    <h2>Welcome to RealRefined.ai</h2>
+    <p>Your AI-powered partner for stunning listings that sell.</p>
+    <button class="btn" onclick="startExperience()">Get Started</button>
   </div>
 
-  <div class="container">
-    <div class="question-box" id="questionStage">
-      <h2>First, tell us about your listing goals...</h2>
-
-      <div id="stage1" class="selection-grid">
-        <div class="selection-option" onclick="nextStage('Student')">Student</div>
-        <div class="selection-option" onclick="nextStage('Couple')">Couple</div>
-        <div class="selection-option" onclick="nextStage('Family')">Family</div>
-        <div class="selection-option" onclick="nextStage('Retiree')">Retiree</div>
-        <div class="selection-option" onclick="nextStage('Remote Worker')">Remote Worker</div>
-      </div>
-
-      <div id="stage2" class="selection-grid" style="display:none;">
-        <div class="selection-option" onclick="finishSelection('Modern')">Modern</div>
-        <div class="selection-option" onclick="finishSelection('Rustic')">Rustic</div>
-        <div class="selection-option" onclick="finishSelection('Coastal')">Coastal</div>
-        <div class="selection-option" onclick="finishSelection('Urban')">Urban</div>
-      </div>
-    </div>
+  <div class="question-section" id="questionBox">
+    <video id="agentVideo" src="/static/real.mp4" autoplay muted loop></video>
+    <div class="question" id="questionText">First, tell us about your listing goals...</div>
+    <div class="options" id="optionButtons"></div>
   </div>
 
   <script>
+    const questions = [
+      {
+        text: "Who's the perfect buyer for this home?",
+        options: ["Family", "Retiree", "Military", "Student", "Remote Worker"]
+      },
+      {
+        text: "What’s the surrounding area like?",
+        options: ["Quiet Suburb", "Urban", "Gated Community", "Rural", "Walkable Shops"]
+      },
+      {
+        text: "What vibe does the home give off?",
+        options: ["Cozy", "Grand", "Peaceful", "Artistic", "Sleek"]
+      },
+      {
+        text: "What makes this home stand out?",
+        options: ["Scenic Views", "Renovated Kitchen", "Large Backyard", "Open Floor Plan", "Smart Home Features"]
+      },
+      {
+        text: "What kind of lifestyle does this home support?",
+        options: ["Entertaining", "Relaxation", "Active Family Life", "Work-from-Home", "Retirement Ready"]
+      }
+    ];
+
+    let currentQuestion = 0;
+
     function startExperience() {
-      document.getElementById('welcome').style.display = 'none';
-      document.getElementById('introVideo').style.display = 'block';
-      document.getElementById('introVideo').play();
-      document.getElementById('questionStage').style.display = 'block';
+      document.getElementById("welcomeBox").style.display = "none";
+      document.getElementById("questionBox").style.display = "flex";
+      showQuestion();
     }
 
-    function nextStage(target) {
-      console.log("Target audience:", target);
-      document.getElementById('stage1').style.display = 'none';
-      document.getElementById('stage2').style.display = 'grid';
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById("questionText").innerText = q.text;
+      const optionsContainer = document.getElementById("optionButtons");
+      optionsContainer.innerHTML = "";
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.className = "option-btn";
+        btn.onclick = () => nextQuestion();
+        optionsContainer.appendChild(btn);
+      });
     }
 
-    function finishSelection(style) {
-      console.log("Selected style:", style);
-      alert(`Thanks! You're targeting a listing for a ${style} audience.`);
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      } else {
+        document.getElementById("questionText").innerText = "Thanks! We're generating your listing magic...";
+        document.getElementById("optionButtons").innerHTML = "";
+      }
     }
   </script>
 </body>
