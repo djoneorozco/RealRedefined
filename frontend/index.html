@@ -65,7 +65,6 @@
 
   <!-- Welcome Overlay -->
   <div class="overlay" id="welcomeBox">
-    <!-- AVATAR PATH FIXED -->
     <img src="static/images/avatar.png" class="avatar" />
     <h2>Welcome to RealRefined.ai</h2>
     <p>Your AI-powered partner for stunning listings that sell.</p>
@@ -74,8 +73,7 @@
 
   <!-- Quiz Flow Container -->
   <div class="quiz-container" id="quizBox">
-    <!-- VIDEO TAG FIXED -->
-    <video id="agentVideo" controls muted>
+    <video id="agentVideo" playsinline muted controls>
       <source src="static/images/real.mp4" type="video/mp4" />
       Your browser doesn’t support the video tag.
     </video>
@@ -86,7 +84,6 @@
   </div>
 
   <script>
-    // All-clicks, no text inputs
     const questions = [
       { text: "Who's the perfect buyer?", options: ["Family","Retiree","Investor","First-Time Buyer","Remote Worker"] },
       { text: "Area type?", options: ["Quiet Suburb","Urban","Gated Community","Rural","Walkable Shops"] },
@@ -113,7 +110,14 @@
     function startQuiz() {
       document.getElementById("welcomeBox").style.display = "none";
       document.getElementById("quizBox").style.display = "flex";
-      document.getElementById("agentVideo").play();
+
+      const video = document.getElementById("agentVideo");
+      video.muted = true;
+      video.currentTime = 0;
+      video.play().catch(err => {
+        console.error("Autoplay failed:", err);
+      });
+
       showQuestion();
     }
 
