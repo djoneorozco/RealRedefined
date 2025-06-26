@@ -65,7 +65,7 @@
 
   <!-- Welcome Overlay -->
   <div class="overlay" id="welcomeBox">
-    <img src="/static/avatar.png" class="avatar" />
+    <img src="static/images/avatar.png" class="avatar" />
     <h2>Welcome to RealRefined.ai</h2>
     <p>Your AI­-powered partner for stunning listings that sell.</p>
     <button class="btn" onclick="startQuiz()">Get Started</button>
@@ -74,7 +74,10 @@
   <!-- Quiz Flow Container -->
   <div class="quiz-container" id="quizBox">
     <!-- video no longer loops -->
-    <video id="agentVideo" src="/static/real.mp4"></video>
+    <video id="agentVideo" controls muted>
+      <source src="static/images/real.mp4" type="video/mp4" />
+      Your browser doesn’t support the video tag.
+    </video>
     <div class="question" id="questionText"></div>
     <div class="options" id="optionsContainer"></div>
     <div id="taglineBox"></div>
@@ -90,11 +93,11 @@
 
       // ← the fifth question now uses images instead of text
       { text: "Supported lifestyle?", imageOptions: [
-          { src:"/static/images/active-family.jpg",   alt:"Entertaining"        },
-          { src:"/static/images/entertainment.jpg",   alt:"Entertainment"       },
-          { src:"/static/images/relaxation.jpg",      alt:"Relaxation"          },
-          { src:"/static/images/retirement.jpg",      alt:"Retirement"          },
-          { src:"/static/images/wfh.jpg",             alt:"Work-From-Home"      },
+          { src:"static/images/active-family.jpg",   alt:"Entertaining"        },
+          { src:"static/images/entertainment.jpg",   alt:"Entertainment"       },
+          { src:"static/images/relaxation.jpg",      alt:"Relaxation"          },
+          { src:"static/images/retirement.jpg",      alt:"Retirement"          },
+          { src:"static/images/wfh.jpg",             alt:"Work-From-Home"      },
         ]
       },
 
@@ -112,8 +115,6 @@
       document.getElementById("welcomeBox").style.display = "none";
       document.getElementById("quizBox").style.display = "flex";
       const vid = document.getElementById("agentVideo");
-      vid.muted = false;
-      vid.loop = false;  // ensure it only plays once
       vid.play();
       showQuestion();
     }
