@@ -73,7 +73,6 @@
 
   <!-- Quiz Flow Container -->
   <div class="quiz-container" id="quizBox">
-    <!-- video no longer loops -->
     <video id="agentVideo" controls muted>
       <source src="static/images/real.mp4" type="video/mp4" />
       Your browser doesn’t support the video tag.
@@ -84,103 +83,7 @@
   </div>
 
   <script>
-    // All-clicks, no text inputs
-    const questions = [
-      { text: "Who's the perfect buyer?",          options:["Family","Retiree","Investor","First-Time Buyer","Remote Worker"] },
-      { text: "Area type?",                         options:["Quiet Suburb","Urban","Gated Community","Rural","Walkable Shops"] },
-      { text: "Home vibe?",                         options:["Cozy","Grand","Peaceful","Artistic","Sleek"] },
-      { text: "Stand-out feature?",                 options:["Scenic Views","Renovated Kitchen","Large Backyard","Open Plan","Smart Home"] },
-
-      // ← the fifth question now uses images instead of text
-      { text: "Supported lifestyle?", imageOptions: [
-          { src:"static/images/active-family.jpg",   alt:"Entertaining"        },
-          { src:"static/images/entertainment.jpg",   alt:"Entertainment"       },
-          { src:"static/images/relaxation.jpg",      alt:"Relaxation"          },
-          { src:"static/images/retirement.jpg",      alt:"Retirement"          },
-          { src:"static/images/wfh.jpg",             alt:"Work-From-Home"      },
-        ]
-      },
-
-      { text: "Interior style?",                    options:["Modern","Rustic","Coastal","Industrial","Traditional"] },
-      { text: "Natural light?",                     options:["Bright & Sunny","Soft & Cozy","Filtered","Dramatic","Minimal"] },
-      { text: "Outdoor space?",                     options:["Patio/Deck","Pool/Lanai","Garden","Balcony","Spacious Yard"] },
-      { text: "Key amenity?",                       options:["Gym","Fireplace","Garage","Walk-In Closet","Home Office"] },
-      { text: "Summarize its appeal?",              options:["Luxury Retreat","Urban Oasis","Country Charm","Eco-Friendly","Tech-Savvy"] },
-      { text: "Which city is it in?",               options:["Houston","San Antonio","Dallas","Austin","Fort Worth"] }
-    ];
-
-    let answers = [], current = 0;
-
-    function startQuiz() {
-      document.getElementById("welcomeBox").style.display = "none";
-      document.getElementById("quizBox").style.display = "flex";
-      const vid = document.getElementById("agentVideo");
-      vid.play();
-      showQuestion();
-    }
-
-    function showQuestion() {
-      const q = questions[current];
-      document.getElementById("questionText").innerText = q.text;
-      const opts = document.getElementById("optionsContainer");
-      opts.innerHTML = "";
-      opts.style.display = "flex";
-
-      if (q.imageOptions) {
-        // render images
-        q.imageOptions.forEach(o => {
-          const img = document.createElement("img");
-          img.src = o.src;
-          img.alt = o.alt;
-          img.className = "option-img";
-          img.onclick = () => {
-            answers.push(o.alt);
-            nextStep();
-          };
-          opts.appendChild(img);
-        });
-      } else {
-        // render text buttons
-        q.options.forEach(opt => {
-          const b = document.createElement("button");
-          b.className = "option-btn";
-          b.innerText = opt;
-          b.onclick = () => {
-            answers.push(opt);
-            nextStep();
-          };
-          opts.appendChild(b);
-        });
-      }
-    }
-
-    function nextStep() {
-      current++;
-      if (current < questions.length) {
-        showQuestion();
-      } else {
-        generateTagline();
-      }
-    }
-
-    async function generateTagline() {
-      document.getElementById("questionText").innerText = "";
-      document.getElementById("optionsContainer").style.display = "none";
-      document.getElementById("taglineBox").innerText = "Generating your AI-crafted tagline…";
-
-      try {
-        const res = await fetch("/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ responses: answers })
-        });
-        const { tagline } = await res.json();
-        document.getElementById("taglineBox").innerText =
-          tagline ? `"${tagline}"` : "Sorry, couldn't generate a tagline.";
-      } catch(err) {
-        document.getElementById("taglineBox").innerText = "Error: " + err.message;
-      }
-    }
+    // your existing JS here...
   </script>
 
 </body>
