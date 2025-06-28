@@ -1,81 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RealRedefined Quiz</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-  <style>
-    body { background-color: #fcefe3; }
-    .container { max-width: 500px; margin: 2rem auto; padding: 2rem; background: white; border-radius: .5rem; }
-    button { background-color: #5a341e; color: white; padding: .5rem 1rem; border-radius: .25rem; }
-    #response { margin-top: 1rem; padding: 1rem; background: #f3f4f6; border-radius: .25rem; }
-  </style>
-</head>
-<body>
-  <div class="container shadow-md">
-    <h1 class="text-2xl font-bold text-center mb-4">RealRedefined Quiz</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>RealRedefined Quiz</title>
+    <!-- You can keep your existing Tailwind/CSS link here -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+  </head>
+  <body class="min-h-screen bg-rose-50 flex items-center justify-center p-4">
+    <div class="max-w-lg w-full bg-white rounded-2xl p-8 shadow">
+      <h1 class="text-2xl font-bold text-center mb-4">RealRedefined Quiz</h1>
 
-    <div class="text-center mb-6">
-      <button id="test-btn">Test Connection</button>
-      <p id="test-result" class="mt-2 text-gray-600"></p>
+      <!-- Test connection -->
+      <div class="text-center mb-6">
+        <button
+          id="test-btn"
+          class="px-4 py-2 bg-rose-700 text-white rounded hover:bg-rose-800 transition"
+        >
+          Test Connection
+        </button>
+        <div id="test-result" class="mt-2 text-rose-700 font-medium"></div>
+      </div>
+
+      <hr class="my-6 border-gray-200" />
+
+      <!-- AI interaction -->
+      <h2 class="text-xl font-semibold mb-2">AI Interaction</h2>
+      <textarea
+        id="prompt-input"
+        rows="4"
+        placeholder="Type your question here…"
+        class="w-full border rounded p-2 mb-4 resize-none focus:outline-none focus:ring-2 focus:ring-rose-300"
+      ></textarea>
+      <div class="text-right mb-4">
+        <button
+          id="ask-btn"
+          class="px-4 py-2 bg-rose-700 text-white rounded hover:bg-rose-800 transition"
+        >
+          Ask AI
+        </button>
+      </div>
+      <div
+        id="ai-response"
+        class="whitespace-pre-wrap bg-gray-100 p-4 rounded text-gray-800 min-h-[3rem]"
+      ></div>
     </div>
 
-    <hr class="my-6">
+    <script>
+      // Test‐connection button
+      document.getElementById('test-btn').addEventListener('click', async () => {
+        const out = document.getElementById('test-result');
+        out.textContent = 'Thinking…';
+        try {
+          const res = await fetch('/api/test');
+          const body = await res.json();
+          out.textContent = body.message;
+        } catch (err) {
+          out.textContent = 'Error: ' + err.message;
+        }
+      });
 
-    <h2 class="text-xl font-semibold mb-2">AI Interaction</h2>
-    <textarea id="prompt" rows="4" class="w-full p-2 border rounded mb-4"
-      placeholder="Enter your question or prompt here…"></textarea>
-    <div class="text-center">
-      <button id="ask-btn">Ask AI</button>
-    </div>
-
-    <div id="response" class="hidden">
-      <p id="thinking" class="italic text-gray-500"><span>🤖</span> Thinking…</p>
-      <p id="answer" class="mt-2 text-gray-800"></p>
-    </div>
-  </div>
-
-  <script>
-    // ←— UPDATE THIS to your actual Render URL:
-    const BACKEND_URL = 'https://realredefined-1.onrender.com';
-
-    document.getElementById('test-btn').addEventListener('click', async () => {
-      const resultEl = document.getElementById('test-result');
-      resultEl.textContent = 'Checking…';
-      try {
-        const res = await fetch(`${BACKEND_URL}/`);
-        if (!res.ok) throw new Error(res.statusText);
-        const txt = await res.text();
-        resultEl.textContent = '✅ ' + txt;
-      } catch (err) {
-        resultEl.textContent = '❌ Connection failed: ' + err.message;
-      }
-    });
-
-    document.getElementById('ask-btn').addEventListener('click', async () => {
-      const prompt = document.getElementById('prompt').value.trim();
-      if (!prompt) return alert('Please enter a prompt first.');
-      document.getElementById('response').classList.remove('hidden');
-      document.getElementById('thinking').style.display = 'block';
-      document.getElementById('answer').textContent = '';
-
-      try {
-        const res = await fetch(`${BACKEND_URL}/ask`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
-        });
-        if (!res.ok) throw new Error(res.statusText);
-        const { answer } = await res.json();
-        document.getElementById('thinking').style.display = 'none';
-        document.getElementById('answer').textContent = answer;
-      } catch (err) {
-        document.getElementById('thinking').style.display = 'none';
-        document.getElementById('answer').textContent = 'Error: ' + err.message;
-      }
-    });
-  </script>
-</body>
+      // Ask AI button
+      document.getElementById('ask-btn').addEventListener('click', async () => {
+        const promptEl = document.getElementById('prompt-input');
+        const out = document.getElementById('ai-response');
+        const prompt = promptEl.value.trim();
+        if (!prompt) {
+          out.textContent = 'Error: please enter a prompt.';
+          return;
+        }
+        out.textContent = 'Thinking…';
+        try {
+          const res = await fetch('/api/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+          });
+          const body = await res.json();
+          if (!res.ok) {
+            out.textContent = 'Error: ' + (body.error || res.statusText);
+          } else {
+            out.textContent = body.response;
+          }
+        } catch (err) {
+          out.textContent = 'Error: ' + err.message;
+        }
+      });
+    </script>
+  </body>
 </html>
-
