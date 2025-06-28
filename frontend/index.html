@@ -5,91 +5,78 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RealRedefined Quiz</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.2/dist/tailwind.min.css" rel="stylesheet" />
+  <!-- Tailwind CDN — or swap for your own CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-orange-50">
-  <main class="max-w-2xl mx-auto my-8 bg-white p-8 rounded-xl shadow-lg">
-    <!-- Test Connection -->
-    <section class="mb-6 text-center">
-      <h1 class="text-3xl font-bold mb-4">RealRedefined Quiz</h1>
-      <p class="mb-4">Click below to test backend connection</p>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold mb-4 text-center">RealRedefined Quiz</h1>
+    <p class="text-center mb-6">Click below to test backend connection</p>
+    <div class="text-center mb-8">
       <button
-        id="test-btn"
-        class="bg-yellow-900 text-white py-2 px-4 rounded hover:bg-yellow-800 transition"
+        id="test-connection"
+        class="bg-brown-600 hover:bg-brown-700 text-white font-semibold py-2 px-4 rounded"
       >
         Test Connection
       </button>
-      <div id="test-result" class="mt-4 text-gray-700"></div>
-    </section>
+      <p id="connection-status" class="mt-4 text-gray-700"></p>
+    </div>
 
     <hr class="my-6" />
 
-    <!-- AI Interaction -->
-    <section>
-      <h2 class="text-2xl font-semibold mb-4 text-center">AI Interaction</h2>
-      <textarea
-        id="user-input"
-        class="w-full border rounded p-2 mb-4 focus:outline-yellow-500"
-        rows="4"
-        placeholder="Enter your prompt here"
-      ></textarea>
-      <div class="text-center">
-        <button
-          id="ask-btn"
-          class="bg-blue-700 text-white py-2 px-6 rounded hover:bg-blue-600 transition"
-        >
-          Ask AI
-        </button>
-      </div>
-      <div id="ai-response" class="mt-4 p-4 bg-gray-100 rounded text-gray-800"></div>
-    </section>
-  </main>
+    <h2 class="text-2xl font-semibold mb-4 text-center">AI Interaction</h2>
+    <textarea
+      id="ai-prompt"
+      class="w-full border rounded-lg p-3 mb-4 h-28 resize-none"
+      placeholder="Ask me anything..."
+    ></textarea>
+    <div class="text-center">
+      <button
+        id="ask-ai"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+      >
+        Ask AI
+      </button>
+    </div>
+    <div id="ai-response" class="mt-6 bg-gray-100 p-4 rounded-lg text-gray-800"></div>
+  </div>
 
   <script>
-    // ←—— change this to your Render URL
+    // ←— point to your live Render backend
     const BACKEND_URL = 'https://realredefined-1.onrender.com';
 
-    // Test Connection handler
-    document.getElementById('test-btn').addEventListener('click', async () => {
-      const resultEl = document.getElementById('test-result');
-      resultEl.textContent = '⏳ Connecting…';
+    // Test Connection
+    document.getElementById('test-connection').addEventListener('click', async () => {
+      const statusEl = document.getElementById('connection-status');
+      statusEl.textContent = '⏳ Testing…';
       try {
-        const res = await fetch(BACKEND_URL);
-        if (res.ok) {
-          const text = await res.text();
-          resultEl.textContent = '✅ ' + text;
-        } else {
-          resultEl.textContent = `❌ ${res.status} ${res.statusText}`;
-        }
+        const res = await fetch(`${BACKEND_URL}/`);
+        const txt = await res.text();
+        statusEl.textContent = '✅ ' + txt;
       } catch (err) {
-        resultEl.textContent = '❌ ' + err.message;
+        statusEl.textContent = '❌ Connection failed: ' + err.message;
       }
     });
 
-    // Ask AI handler
-    document.getElementById('ask-btn').addEventListener('click', async () => {
-      const prompt = document.getElementById('user-input').value;
-      const responseEl = document.getElementById('ai-response');
-      responseEl.textContent = '🤖 Thinking…';
+    // Ask AI
+    document.getElementById('ask-ai').addEventListener('click', async () => {
+      const prompt = document.getElementById('ai-prompt').value.trim();
+      const respEl = document.getElementById('ai-response');
+      if (!prompt) return;
+      respEl.innerHTML = '<em>🤖 Thinking…</em>';
       try {
-        const res = await fetch(`${BACKEND_URL}/ai`, {
+        const res = await fetch(`${BACKEND_URL}/ask`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt })
         });
-        if (res.ok) {
-          const data = await res.json();
-          // adjust this if your backend shape is different
-          responseEl.textContent =
-            (data.choices && data.choices[0].message.content) ||
-            JSON.stringify(data, null, 2);
-        } else {
-          responseEl.textContent = `❌ ${res.status} ${res.statusText}`;
-        }
+        const { answer } = await res.json();
+        respEl.textContent = answer;
       } catch (err) {
-        responseEl.textContent = '❌ ' + err.message;
+        respEl.textContent = '❌ Error: ' + err.message;
       }
     });
   </script>
 </body>
 </html>
+
