@@ -1,48 +1,61 @@
-// Import required packages
-import OpenAI from 'openai';
-import dotenv from 'dotenv';
+// backend/server.js
 import express from 'express';
-import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import OpenAI from 'openai';
 
-// Load environment variables from .env
+// 1) load process.env.OPENAI_API_KEY from .env
 dotenv.config();
 
-// Initialize OpenAI
+// __dirname workaround in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
+
+// 2) instantiate OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Create Express app
 const app = express();
-const port = process.env.PORT || 5050; // ✅ Use Render's dynamic PORT
 
-// Middleware
-app.use(cors());
+// 3) let us parse JSON bodies
 app.use(express.json());
 
-// ✅ Root route for quick sanity-check
-app.get('/', (req, res) => {
-  res.send('✅ Backend is live! Hello from RealRedefined server.');
+// 4) serve all files in ../frontend as static assets
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// 5) a simple “test connection” endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ ok: true, message: 'Backend is live!' });
 });
 
-// ✅ POST endpoint (match frontend!)
+// 6) your AI proxy endpoint
 app.post('/api/ask', async (req, res) => {
+  const { prompt } = req.body;
+  if (!prompt) {
+    return res.status(400).json({ error: 'No prompt provided' });
+  }
   try {
-    const prompt = req.body.prompt;
-
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o', // or 'gpt-4'
+      model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
     });
-
-    res.json({ response: completion.choices[0].message.content });
-  } catch (error) {
-    console.error('❌ OpenAI API Error:', error);
-    res.status(500).json({ error: 'Failed to generate response from AI.' });
+    const aiText = completion.choices?.[0]?.message.content;
+    res.json({ response: aiText });
+  } catch (err) {
+    console.error('OpenAI error', err);
+    res.status(500).json({ error: 'AI request failed' });
   }
 });
 
-// Start the server
+// 7) fallback: always send index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+// 8) start up
+const port = process.env.PORT || 10000;
 app.listen(port, () => {
-  console.log(`🚀 Server is running on port ${port}`);
+  console.log(`🚀 Server listening on port ${port}`);
 });
