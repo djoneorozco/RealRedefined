@@ -3,179 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RealRefined.ai</title>
+  <title>RealRedefined Quiz</title>
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #f9eee5;
+      background-color: #f9e8dd;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      flex-direction: column;
     }
-    .overlay, .quiz-container {
-      background-color: white;
-      border-radius: 16px;
+    .container {
+      background: #fff;
       padding: 2rem;
+      border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
       text-align: center;
-      max-width: 600px;
+      width: 400px;
+    }
+    h1 {
+      margin-bottom: 0.5rem;
+    }
+    textarea {
       width: 100%;
+      height: 100px;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
-    .overlay { margin-bottom: 2rem; }
-    .avatar {
-      width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem;
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      background-color: #5c3d2e;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
     }
-    .btn {
-      background-color: #7a29cc; color: white; border: none;
-      padding: 0.6rem 1.2rem; font-size: 2rem; border-radius: 8px;
-      cursor: pointer; margin-top: 1rem;
-    }
-    .quiz-container { display: none; gap: 1.5rem; }
-    video {
-      width: 450px; border-radius: 16px; margin-bottom: 1rem;
-    }
-    .question {
-      font-weight: bold; font-size: 1.5rem; margin-bottom: 1rem;
-    }
-    .options {
-      display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
-    }
-    .option-btn {
-      background: #fff; border: 1px solid #ccc;
-      padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;
-      font-size: 1rem;
-    }
-    .option-img {
-      width: 120px; height: 120px;
-      object-fit: cover; border-radius: 8px;
-      cursor: pointer; border: 2px solid transparent;
-      transition: border-color .2s;
-    }
-    .option-img:hover { border-color: #7a29cc; }
-    #taglineBox {
-      margin-top: 1.5rem; font-size: 1.2rem;
-      font-style: italic; color: #444;
+    #response {
+      margin-top: 1rem;
+      background: #f0f0f0;
+      padding: 1rem;
+      border-radius: 6px;
+      text-align: left;
     }
   </style>
 </head>
 <body>
-
-  <!-- Welcome Overlay -->
-  <div class="overlay" id="welcomeBox">
-    <img src="static/images/avatar.png" class="avatar" />
-    <h2>Welcome to RealRefined.ai</h2>
-    <p>Your AI-powered partner for stunning listings that sell.</p>
-    <button class="btn" onclick="startQuiz()">Get Started</button>
-  </div>
-
-  <!-- Quiz Flow Container -->
-  <div class="quiz-container" id="quizBox">
-    <video id="agentVideo" playsinline muted controls>
-      <source src="static/images/real.mp4" type="video/mp4" />
-      Your browser doesn’t support the video tag.
-    </video>
-
-    <div class="question" id="questionText"></div>
-    <div class="options" id="optionsContainer"></div>
-    <div id="taglineBox"></div>
+  <div class="container">
+    <h1>RealRedefined Quiz</h1>
+    <p>Click below to test backend connection</p>
+    <button id="test-connection">Test Connection</button>
+    <hr>
+    <h3>AI Interaction</h3>
+    <textarea id="prompt" placeholder="Enter your prompt here"></textarea>
+    <br>
+    <button id="ask-ai">Ask AI</button>
+    <div id="response"></div>
   </div>
 
   <script>
-    const questions = [
-      { text: "Who's the perfect buyer?", options: ["Family","Retiree","Investor","First-Time Buyer","Remote Worker"] },
-      { text: "Area type?", options: ["Quiet Suburb","Urban","Gated Community","Rural","Walkable Shops"] },
-      { text: "Home vibe?", options: ["Cozy","Grand","Peaceful","Artistic","Sleek"] },
-      { text: "Stand-out feature?", options: ["Scenic Views","Renovated Kitchen","Large Backyard","Open Plan","Smart Home"] },
-      { text: "Supported lifestyle?", imageOptions: [
-          { src: "static/images/active-family.jpg", alt: "Entertaining" },
-          { src: "static/images/entertainment.jpg",  alt: "Entertainment" },
-          { src: "static/images/relaxation.jpg",     alt: "Relaxation" },
-          { src: "static/images/retirement.jpg",      alt: "Retirement" },
-          { src: "static/images/wfh.jpg",             alt: "Work-From-Home" }
-        ]
-      },
-      { text: "Interior style?", options: ["Modern","Rustic","Coastal","Industrial","Traditional"] },
-      { text: "Natural light?", options: ["Bright & Sunny","Soft & Cozy","Filtered","Dramatic","Minimal"] },
-      { text: "Outdoor space?", options: ["Patio/Deck","Pool/Lanai","Garden","Balcony","Spacious Yard"] },
-      { text: "Key amenity?", options: ["Gym","Fireplace","Garage","Walk-In Closet","Home Office"] },
-      { text: "Summarize its appeal?", options: ["Luxury Retreat","Urban Oasis","Country Charm","Eco-Friendly","Tech-Savvy"] },
-      { text: "Which city is it in?", options: ["Houston","San Antonio","Dallas","Austin","Fort Worth"] }
-    ];
+    const testBtn = document.getElementById('test-connection');
+    const askBtn = document.getElementById('ask-ai');
+    const responseDiv = document.getElementById('response');
+    const promptInput = document.getElementById('prompt');
 
-    let answers = [], current = 0;
+    const BACKEND_URL = 'https://realredefined.onrender.com'; // ✅ your live Render URL
 
-    function startQuiz() {
-      document.getElementById("welcomeBox").style.display = "none";
-      document.getElementById("quizBox").style.display = "flex";
-
-      const video = document.getElementById("agentVideo");
-      video.muted = true;
-      video.currentTime = 0;
-      video.play().catch(err => {
-        console.error("Autoplay failed:", err);
-      });
-
-      showQuestion();
-    }
-
-    function showQuestion() {
-      const q = questions[current];
-      document.getElementById("questionText").innerText = q.text;
-      const opts = document.getElementById("optionsContainer");
-      opts.innerHTML = "";
-      opts.style.display = "flex";
-
-      if (q.imageOptions) {
-        q.imageOptions.forEach(o => {
-          const img = document.createElement("img");
-          img.src = o.src;
-          img.alt = o.alt;
-          img.className = "option-img";
-          img.onclick = () => { answers.push(o.alt); nextStep(); };
-          opts.appendChild(img);
-        });
-      } else {
-        q.options.forEach(opt => {
-          const b = document.createElement("button");
-          b.className = "option-btn";
-          b.innerText = opt;
-          b.onclick = () => { answers.push(opt); nextStep(); };
-          opts.appendChild(b);
-        });
-      }
-    }
-
-    function nextStep() {
-      current++;
-      if (current < questions.length) {
-        showQuestion();
-      } else {
-        generateTagline();
-      }
-    }
-
-    async function generateTagline() {
-      document.getElementById("questionText").innerText = "";
-      document.getElementById("optionsContainer").style.display = "none";
-      document.getElementById("taglineBox").innerText = "Generating your AI-crafted tagline…";
-
+    testBtn.addEventListener('click', async () => {
+      responseDiv.textContent = '⏳ Testing connection...';
       try {
-        const res = await fetch("/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ responses: answers })
-        });
-        const { tagline } = await res.json();
-        document.getElementById("taglineBox").innerText =
-          tagline ? `"${tagline}"` : "Sorry, couldn’t generate a tagline.";
-      } catch(err) {
-        document.getElementById("taglineBox").innerText = "Error: " + err.message;
+        const res = await fetch(BACKEND_URL + '/');
+        const text = await res.text();
+        responseDiv.textContent = `✅ ${text}`;
+      } catch (err) {
+        console.error(err);
+        responseDiv.textContent = '❌ Failed to connect.';
       }
-    }
-  </script>
+    });
 
+    askBtn.addEventListener('click', async () => {
+      const prompt = promptInput.value.trim();
+      if (!prompt) {
+        responseDiv.textContent = '⚠️ Please enter a prompt.';
+        return;
+      }
+      responseDiv.textContent = '🤖 Thinking...';
+      try {
+        const res = await fetch(BACKEND_URL + '/api/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+
+        const data = await res.json();
+        if (data.response) {
+          responseDiv.textContent = `💡 ${data.response}`;
+        } else {
+          responseDiv.textContent = '❌ No response from AI.';
+        }
+      } catch (err) {
+        console.error(err);
+        responseDiv.textContent = '❌ Error calling AI.';
+      }
+    });
+  </script>
 </body>
 </html>
