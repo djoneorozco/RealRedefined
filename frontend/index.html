@@ -2,109 +2,92 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RealRedefined Quiz</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f9f0e9;
-      margin: 0;
-      padding: 2rem;
-      display: flex;
-      justify-content: center;
-    }
-    .card {
-      background: white;
-      border-radius: 8px;
-      padding: 2rem;
-      max-width: 500px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    h1, h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    button {
-      display: block;
-      margin: 1rem auto;
-      padding: 0.75rem 1.5rem;
-      background: #59331a;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    hr {
-      margin: 2rem 0;
-      border: 0;
-      border-top: 1px solid #ddd;
-    }
-    .output {
-      background: #f2f2f2;
-      padding: 1rem;
-      border-radius: 4px;
-      min-height: 3rem;
-    }
-    textarea {
-      width: 100%;
-      height: 5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 0.5rem;
-      box-sizing: border-box;
-    }
-  </style>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.2/dist/tailwind.min.css" rel="stylesheet" />
 </head>
-<body>
-  <div class="card">
-    <h1>RealRedefined Quiz</h1>
-    <p style="text-align:center">Click below to test backend connection</p>
-    <button id="testBtn">Test Connection</button>
-    <div id="testOutput" class="output"></div>
+<body class="bg-orange-50">
+  <main class="max-w-2xl mx-auto my-8 bg-white p-8 rounded-xl shadow-lg">
+    <!-- Test Connection -->
+    <section class="mb-6 text-center">
+      <h1 class="text-3xl font-bold mb-4">RealRedefined Quiz</h1>
+      <p class="mb-4">Click below to test backend connection</p>
+      <button
+        id="test-btn"
+        class="bg-yellow-900 text-white py-2 px-4 rounded hover:bg-yellow-800 transition"
+      >
+        Test Connection
+      </button>
+      <div id="test-result" class="mt-4 text-gray-700"></div>
+    </section>
 
-    <hr />
+    <hr class="my-6" />
 
-    <h2>AI Interaction</h2>
-    <textarea id="prompt" placeholder="Enter your question here…"></textarea>
-    <button id="askBtn">Ask AI</button>
-    <div id="aiOutput" class="output">🤖 Thinking…</div>
-  </div>
+    <!-- AI Interaction -->
+    <section>
+      <h2 class="text-2xl font-semibold mb-4 text-center">AI Interaction</h2>
+      <textarea
+        id="user-input"
+        class="w-full border rounded p-2 mb-4 focus:outline-yellow-500"
+        rows="4"
+        placeholder="Enter your prompt here"
+      ></textarea>
+      <div class="text-center">
+        <button
+          id="ask-btn"
+          class="bg-blue-700 text-white py-2 px-6 rounded hover:bg-blue-600 transition"
+        >
+          Ask AI
+        </button>
+      </div>
+      <div id="ai-response" class="mt-4 p-4 bg-gray-100 rounded text-gray-800"></div>
+    </section>
+  </main>
 
   <script>
-    // ← your new Render URL here ↓
+    // ←—— change this to your Render URL
     const BACKEND_URL = 'https://realredefined-1.onrender.com';
 
-    document.getElementById('testBtn').addEventListener('click', async () => {
-      const out = document.getElementById('testOutput');
-      out.textContent = '⏳ Checking…';
+    // Test Connection handler
+    document.getElementById('test-btn').addEventListener('click', async () => {
+      const resultEl = document.getElementById('test-result');
+      resultEl.textContent = '⏳ Connecting…';
       try {
-        const res = await fetch(`${BACKEND_URL}/`);
-        const txt = await res.text();
-        out.textContent = txt;
+        const res = await fetch(BACKEND_URL);
+        if (res.ok) {
+          const text = await res.text();
+          resultEl.textContent = '✅ ' + text;
+        } else {
+          resultEl.textContent = `❌ ${res.status} ${res.statusText}`;
+        }
       } catch (err) {
-        out.textContent = '❌ Error: ' + err.message;
+        resultEl.textContent = '❌ ' + err.message;
       }
     });
 
-    document.getElementById('askBtn').addEventListener('click', async () => {
-      const out = document.getElementById('aiOutput');
-      const prompt = document.getElementById('prompt').value.trim();
-      if (!prompt) {
-        out.textContent = '⚠️ Please enter a prompt.';
-        return;
-      }
-      out.textContent = '🤖 Thinking…';
+    // Ask AI handler
+    document.getElementById('ask-btn').addEventListener('click', async () => {
+      const prompt = document.getElementById('user-input').value;
+      const responseEl = document.getElementById('ai-response');
+      responseEl.textContent = '🤖 Thinking…';
       try {
-        const res = await fetch(`${BACKEND_URL}/ask`, {
+        const res = await fetch(`${BACKEND_URL}/ai`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt })
         });
-        if (!res.ok) throw new Error(await res.text());
-        const { answer } = await res.json();
-        out.textContent = answer;
+        if (res.ok) {
+          const data = await res.json();
+          // adjust this if your backend shape is different
+          responseEl.textContent =
+            (data.choices && data.choices[0].message.content) ||
+            JSON.stringify(data, null, 2);
+        } else {
+          responseEl.textContent = `❌ ${res.status} ${res.statusText}`;
+        }
       } catch (err) {
-        out.textContent = '❌ ' + err.message;
+        responseEl.textContent = '❌ ' + err.message;
       }
     });
   </script>
