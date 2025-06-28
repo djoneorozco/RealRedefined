@@ -1,113 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
   <title>RealRedefined Quiz</title>
   <style>
     body {
+      background-color: #fcefe3;
+      margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #f9e8dd;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
     }
-    .container {
+    .card {
+      max-width: 600px;
+      margin: 50px auto;
       background: #fff;
-      padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 400px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    h1 {
-      margin-bottom: 0.5rem;
+    h1, h2 {
+      text-align: center;
+      margin: 0 0 12px;
+    }
+    p {
+      text-align: center;
+      margin: 4px 0 16px;
+    }
+    button {
+      display: inline-block;
+      background-color: #653d2b;
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #502f23;
     }
     textarea {
       width: 100%;
       height: 100px;
-      margin-top: 1rem;
-      padding: 0.5rem;
-      border-radius: 6px;
       border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 1rem;
+      resize: vertical;
     }
-    button {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
+    #test-result, #response {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f4f4f4;
+      border-radius: 6px;
+      min-height: 1.5em;
+    }
+    hr {
+      margin: 32px 0;
       border: none;
-      background-color: #5c3d2e;
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    #response {
-      margin-top: 1rem;
-      background: #f0f0f0;
-      padding: 1rem;
-      border-radius: 6px;
-      text-align: left;
+      border-top: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+
+  <div class="card">
     <h1>RealRedefined Quiz</h1>
     <p>Click below to test backend connection</p>
-    <button id="test-connection">Test Connection</button>
+    <div style="text-align:center;">
+      <button id="test-connection">Test Connection</button>
+    </div>
+    <div id="test-result"></div>
+
     <hr>
-    <h3>AI Interaction</h3>
-    <textarea id="prompt" placeholder="Enter your prompt here"></textarea>
-    <br>
-    <button id="ask-ai">Ask AI</button>
+
+    <h2>AI Interaction</h2>
+    <textarea
+      id="prompt"
+      placeholder="Type your prompt here…"
+    ></textarea>
+    <div style="text-align:center; margin-top:12px;">
+      <button id="ask-ai">Ask AI</button>
+    </div>
     <div id="response"></div>
   </div>
 
   <script>
-    const testBtn = document.getElementById('test-connection');
-    const askBtn = document.getElementById('ask-ai');
-    const responseDiv = document.getElementById('response');
-    const promptInput = document.getElementById('prompt');
+    // 🔧 Point this at your Render backend
+    const BASE_URL = 'https://realredefined-1.onrender.com';
 
-    const BACKEND_URL = 'https://realredefined.onrender.com'; // ✅ your live Render URL
-
-    testBtn.addEventListener('click', async () => {
-      responseDiv.textContent = '⏳ Testing connection...';
-      try {
-        const res = await fetch(BACKEND_URL + '/');
-        const text = await res.text();
-        responseDiv.textContent = `✅ ${text}`;
-      } catch (err) {
-        console.error(err);
-        responseDiv.textContent = '❌ Failed to connect.';
-      }
-    });
-
-    askBtn.addEventListener('click', async () => {
-      const prompt = promptInput.value.trim();
-      if (!prompt) {
-        responseDiv.textContent = '⚠️ Please enter a prompt.';
-        return;
-      }
-      responseDiv.textContent = '🤖 Thinking...';
-      try {
-        const res = await fetch(BACKEND_URL + '/api/ask', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
-        });
-
-        const data = await res.json();
-        if (data.response) {
-          responseDiv.textContent = `💡 ${data.response}`;
-        } else {
-          responseDiv.textContent = '❌ No response from AI.';
+    // — Test Connection —
+    document
+      .getElementById('test-connection')
+      .addEventListener('click', async () => {
+        const out = document.getElementById('test-result');
+        out.textContent = '⏳ Testing…';
+        try {
+          const res = await fetch(`${BASE_URL}/`);
+          if (!res.ok) throw new Error(res.statusText);
+          const text = await res.text();
+          out.textContent = `✅ ${text}`;
+        } catch (err) {
+          out.textContent = `❌ ${err}`;
         }
-      } catch (err) {
-        console.error(err);
-        responseDiv.textContent = '❌ Error calling AI.';
-      }
-    });
+      });
+
+    // — Ask the AI —
+    document
+      .getElementById('ask-ai')
+      .addEventListener('click', async () => {
+        const prompt = document.getElementById('prompt').value.trim();
+        const out = document.getElementById('response');
+        if (!prompt) {
+          out.textContent = '⚠️ Please enter a prompt.';
+          return;
+        }
+        out.textContent = '🤖 Thinking…';
+        try {
+          const res = await fetch(`${BASE_URL}/ask`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt }),
+          });
+          if (!res.ok) throw new Error(res.statusText);
+          const { answer } = await res.json();
+          out.textContent = answer;
+        } catch (err) {
+          out.textContent = `❌ ${err}`;
+        }
+      });
   </script>
 </body>
 </html>
