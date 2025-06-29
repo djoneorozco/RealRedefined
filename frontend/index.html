@@ -2,45 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>RealRedefined Quiz</title>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     body {
       font-family: sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      margin: 0;
       background: #f5f5f5;
+      margin: 0;
+      height: 100vh;
     }
     .card {
       background: white;
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      max-width: 400px;
+      max-width: 450px;
       width: 100%;
     }
     h1 { margin-top: 0; }
-    video {
-      width: 100%;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-    }
-    label { display: block; margin: 0.5rem 0 0.25rem; font-weight: bold; }
     input, textarea {
       width: 100%;
       font-size: 1rem;
       padding: 0.5rem;
       margin-bottom: 1rem;
-      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
     textarea { height: 80px; }
     button {
-      margin-right: 0.5rem;
       padding: 0.5rem 1rem;
       font-size: 1rem;
+      margin-right: 0.5rem;
       cursor: pointer;
     }
     #result {
@@ -48,7 +47,10 @@
       padding: 1rem;
       background: #eee;
       border-radius: 4px;
-      min-height: 2em;
+      min-height: 3em;
+    }
+    #chart-container {
+      margin-top: 1.5rem;
     }
   </style>
 </head>
@@ -56,18 +58,14 @@
   <div class="card">
     <h1>RealRedefined Quiz</h1>
 
-    <!-- 1) Video -->
-    <video controls src="/static/images/real.mp4"></video>
+    <label>Area / ZIP code</label>
+    <input id="zip" placeholder="e.g. 78046" />
 
-    <!-- 2) Three inputs -->
-    <label for="zip">Area / ZIP code</label>
-    <input id="zip" type="text" placeholder="e.g. 78046" />
+    <label>Your proposed sale price</label>
+    <input id="price" type="number" placeholder="e.g. 850000" />
 
-    <label for="proposed">Your proposed sale price</label>
-    <input id="proposed" type="number" placeholder="e.g. 850000" />
-
-    <label for="context">Additional context or question</label>
-    <textarea id="context" placeholder="e.g. Selling to a family? Any other notes…"></textarea>
+    <label>Additional context or question</label>
+    <textarea id="prompt" placeholder="Any other notes…"></textarea>
 
     <div>
       <button id="btn-test">Test Backend</button>
@@ -75,66 +73,95 @@
     </div>
 
     <div id="result"></div>
+
+    <!-- Chart.js canvas -->
+    <div id="chart-container" style="display:none;">
+      <canvas id="chart-prices" width="400" height="250"></canvas>
+    </div>
   </div>
 
   <script>
-    const zipEl      = document.getElementById('zip');
-    const proposedEl = document.getElementById('proposed');
-    const contextEl  = document.getElementById('context');
-    const resultEl   = document.getElementById('result');
+    const zipEl    = document.getElementById('zip');
+    const priceEl  = document.getElementById('price');
+    const promptEl = document.getElementById('prompt');
+    const resultEl = document.getElementById('result');
+    const chartWrap = document.getElementById('chart-container');
+    let priceChart = null;
 
-    document.getElementById('btn-test').addEventListener('click', async () => {
+    document.getElementById('btn-test').onclick = async () => {
       resultEl.textContent = '⏳ Testing…';
+      chartWrap.style.display = 'none';
       try {
         const res = await fetch('/api/test');
         const json = await res.json();
-        resultEl.textContent = json.msg || 'No message';
+        resultEl.textContent = json.msg;
       } catch (err) {
         resultEl.textContent = 'Test failed: ' + err;
       }
-    });
+    };
 
-    document.getElementById('btn-ask').addEventListener('click', async () => {
-      const zip      = zipEl.value.trim();
-      const proposed = proposedEl.value.trim();
-      const context  = contextEl.value.trim();
+    document.getElementById('btn-ask').onclick = async () => {
+      const zip    = zipEl.value.trim();
+      const price  = priceEl.value.trim();
+      const prompt = promptEl.value.trim();
 
-      if (!zip || !proposed) {
-        resultEl.textContent = 'Please fill in ZIP and proposed price.';
+      if (!zip || !price || !prompt) {
+        resultEl.textContent = 'Please fill all three fields.';
         return;
       }
 
       resultEl.textContent = '⏳ Asking AI…';
-
-      // Let AI fetch median price & neighborhood data
-      const prompt = `
-I have a property in ZIP code ${zip}.  
-The seller wants to list at $${proposed}.  
-${context ? `Additional context: ${context}` : ''}
-
-Please:
-1) Research the local median sale price & recent comps in ${zip}.  
-2) Analyze school quality, crime, amenities, and market trends.  
-3) Tell me whether $${proposed} is too high, too low, or about right.  
-4) Recommend an adjusted listing price if needed, with reasons.
-      `.trim();
+      chartWrap.style.display = 'none';
 
       try {
         const res = await fetch('/api/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
+          body: JSON.stringify({ zip, price, prompt })
         });
         const json = await res.json();
+
         if (json.error) {
           resultEl.textContent = 'Error: ' + json.error;
-        } else {
-          resultEl.textContent = json.answer;
+          return;
         }
+
+        // Show AI answer
+        resultEl.textContent = json.answer;
+
+        // Draw the price chart
+        const [median, listed] = json.charts.prices;
+        chartWrap.style.display = 'block';
+
+        // If a chart already exists, destroy it before drawing a new one
+        if (priceChart) {
+          priceChart.destroy();
+        }
+
+        const ctx = document.getElementById('chart-prices').getContext('2d');
+        priceChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Median Price', 'Your Price'],
+            datasets: [{
+              label: '$ USD',
+              data: [median, listed],
+            }]
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true }
+            },
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+
       } catch (err) {
         resultEl.textContent = 'Request failed: ' + err;
       }
-    });
+    };
   </script>
 </body>
 </html>
