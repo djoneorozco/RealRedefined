@@ -54,6 +54,12 @@
       color: #8892b0;
     }
 
+    .left-panel video {
+      width: 100%;
+      border-radius: 12px;
+      display: none;
+    }
+
     .video-panel {
       flex: 1;
       max-width: 450px;
@@ -166,18 +172,26 @@
       .video-panel {
         margin-top: 2rem;
       }
+
+      .left-panel video {
+        margin-top: 1rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="left-panel">
-      <h1>The Smartest Way to <span>Refine</span> Listings</h1>
+    <div class="left-panel" id="leftPanel">
+      <h1 id="headline">The Smartest Way to <span>Refine</span> Listings</h1>
       <p>Modern. Sassy. Data-driven Real Estate Insights.</p>
       <p>Discover smarter ways to refine your listings and stay ahead of the curve.</p>
       <div class="branding">
         Part of the <strong>RealtySass</strong> family.
       </div>
+      <video id="followUpVideo" controls>
+        <source src="static/images/real2.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
     </div>
 
     <div class="video-panel">
@@ -218,16 +232,27 @@
     const beginBtn = document.getElementById('beginBtn');
     const avatarImage = document.getElementById('avatarImage');
     const introVideo = document.getElementById('introVideo');
+    const followUpVideo = document.getElementById('followUpVideo');
     const quizForm = document.getElementById('quizForm');
+    const headline = document.getElementById('headline');
 
     beginBtn.addEventListener('click', () => {
       avatarImage.style.display = 'none';
       beginBtn.style.display = 'none';
       introVideo.style.display = 'block';
       introVideo.play();
+
       introVideo.onended = () => {
         introVideo.style.display = 'none';
-        quizForm.style.display = 'block';
+        // Replace left panel text with video
+        headline.style.display = 'none';
+        followUpVideo.style.display = 'block';
+        followUpVideo.play();
+
+        followUpVideo.onended = () => {
+          followUpVideo.style.display = 'none';
+          quizForm.style.display = 'block';
+        };
       };
     });
 
