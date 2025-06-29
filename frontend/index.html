@@ -12,6 +12,7 @@
       color: #fff;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 4rem 2rem;
@@ -30,9 +31,14 @@
     }
 
     .left-panel h1 {
-      font-size: 2.8rem;
+      font-size: 3rem;
       margin-bottom: 1rem;
       line-height: 1.2;
+    }
+
+    .left-panel h1 span {
+      font-family: 'Brush Script MT', cursive;
+      color: #f87171;
     }
 
     .left-panel p {
@@ -52,13 +58,16 @@
       flex: 1;
       max-width: 450px;
       text-align: center;
+      background: #112240;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     }
 
     .video-panel video,
     .video-panel img {
       width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      border-radius: 8px;
     }
 
     .video-panel button {
@@ -80,6 +89,7 @@
     #quizForm {
       display: none;
       margin-top: 1.5rem;
+      text-align: left;
     }
 
     label {
@@ -140,11 +150,21 @@
       height: 260px;
     }
 
+    footer {
+      margin-top: 4rem;
+      font-size: 0.85rem;
+      color: #8892b0;
+    }
+
     @media (max-width: 900px) {
       .container {
         flex-direction: column;
         align-items: center;
         text-align: center;
+      }
+
+      .video-panel {
+        margin-top: 2rem;
       }
     }
   </style>
@@ -152,7 +172,7 @@
 <body>
   <div class="container">
     <div class="left-panel">
-      <h1>Welcome to REDEFINED.AI</h1>
+      <h1>The Smartest Way to <span>Refine</span> Listings</h1>
       <p>Modern. Sassy. Data-driven Real Estate Insights.</p>
       <p>Discover smarter ways to refine your listings and stay ahead of the curve.</p>
       <div class="branding">
@@ -190,6 +210,8 @@
       </div>
     </div>
   </div>
+
+  <footer>© 2025 RealtySass. All rights reserved.</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
