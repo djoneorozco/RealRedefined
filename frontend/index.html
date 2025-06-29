@@ -1,51 +1,78 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>REDefined.ai Landing</title>
+  <title>REDEFINED.AI</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      min-height: 100vh;
       margin: 0;
-      background: linear-gradient(135deg, #f9f9f9, #e9ecef);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* Deep blue gradient */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
     }
-    .card {
-      background: white;
-      padding: 2rem;
+
+    .glass-card {
+      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      max-width: 600px;
-      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 90%;
+      padding: 2rem;
       text-align: center;
     }
+
     h1 {
-      margin-top: 0;
-      font-weight: 700;
-      color: #333;
+      margin: 0 0 1rem;
+      font-weight: 600;
     }
+
+    .avatar {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+
     video {
       width: 100%;
       border-radius: 12px;
-      display: none;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
-    .quiz {
+
+    button {
+      background: #00d26a;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #00b65c;
+    }
+
+    /* Hide quiz by default */
+    #quizForm {
       display: none;
       text-align: left;
+      margin-top: 1rem;
     }
+
     label {
       display: block;
       margin-top: 0.75rem;
       font-weight: 600;
     }
+
     input, textarea {
       width: 100%;
       padding: 0.6rem;
@@ -55,39 +82,36 @@
       border-radius: 6px;
       box-sizing: border-box;
     }
+
     textarea { height: 80px; resize: vertical; }
+
     .buttons {
       margin-top: 1rem;
       display: flex;
       justify-content: space-between;
     }
-    button {
+
+    .buttons button {
       flex: 1;
-      padding: 0.6rem 1rem;
-      font-size: 1rem;
       margin-right: 0.5rem;
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      transition: background 0.2s;
     }
-    button:last-child { margin-right: 0; }
-    #btn-test { background: #6c757d; color: white; }
+
+    .buttons button:last-child { margin-right: 0; }
+
+    #btn-test { background: #6c757d; }
     #btn-test:hover { background: #5a6268; }
-    #btn-ask  { background: #007bff; color: white; }
+    #btn-ask  { background: #007bff; }
     #btn-ask:hover { background: #0056b3; }
-    #begin-btn {
-      background: #28a745; color: white; font-size: 1.2rem;
-      margin-top: 1rem;
-    }
-    #begin-btn:hover { background: #218838; }
+
     #result {
       margin-top: 1rem;
       padding: 1rem;
       background: #f1f3f5;
       border-radius: 6px;
       min-height: 3em;
+      color: #333;
     }
+
     #chartContainer {
       margin-top: 1rem;
       width: 100%;
@@ -96,19 +120,19 @@
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="glass-card">
     <h1>Welcome to REDEFINED.AI</h1>
-    <img src="static/images/avatar.png" alt="Avatar" style="width:100%; border-radius:12px;">
-    <button id="begin-btn">Let’s Begin</button>
 
-    <!-- Video hidden initially -->
-    <video id="introVideo" controls>
+    <!-- Splash -->
+    <img src="static/images/avatar.png" alt="Avatar" class="avatar" id="avatarImage" />
+    <video id="introVideo" controls style="display: none;">
       <source src="static/images/real.mp4" type="video/mp4" />
-      Your browser doesn’t support video.
+      Your browser does not support the video tag.
     </video>
+    <button id="beginBtn">Let's Begin</button>
 
-    <!-- Quiz form hidden initially -->
-    <div class="quiz">
+    <!-- Quiz -->
+    <div id="quizForm">
       <label for="zip">Area / ZIP code</label>
       <input id="zip" type="text" placeholder="e.g. 78046" />
 
@@ -124,35 +148,35 @@
       </div>
 
       <div id="result"></div>
+
       <div id="chartContainer">
         <canvas id="priceChart"></canvas>
       </div>
     </div>
   </div>
 
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const beginBtn = document.getElementById('begin-btn');
+    const beginBtn = document.getElementById('beginBtn');
+    const avatarImage = document.getElementById('avatarImage');
     const introVideo = document.getElementById('introVideo');
-    const quizEl = document.querySelector('.quiz');
-    const avatarImg = document.querySelector('img');
+    const quizForm = document.getElementById('quizForm');
 
-    beginBtn.onclick = () => {
-      avatarImg.style.display = 'none';
+    beginBtn.addEventListener('click', () => {
+      avatarImage.style.display = 'none';
       beginBtn.style.display = 'none';
       introVideo.style.display = 'block';
       introVideo.play();
-    };
 
-    introVideo.onended = () => {
-      introVideo.style.display = 'none';
-      quizEl.style.display = 'block';
-    };
+      introVideo.onended = () => {
+        introVideo.style.display = 'none';
+        quizForm.style.display = 'block';
+      };
+    });
 
     const resultEl = document.getElementById('result');
-    const zipEl = document.getElementById('zip');
-    const priceEl = document.getElementById('price');
+    const zipEl    = document.getElementById('zip');
+    const priceEl  = document.getElementById('price');
     const promptEl = document.getElementById('prompt');
 
     document.getElementById('btn-test').onclick = async () => {
@@ -167,9 +191,10 @@
     };
 
     let chart;
+
     document.getElementById('btn-ask').onclick = async () => {
-      const zip = zipEl.value.trim();
-      const price = priceEl.value.trim();
+      const zip    = zipEl.value.trim();
+      const price  = priceEl.value.trim();
       const prompt = promptEl.value.trim();
       if (!zip || !price || !prompt) {
         resultEl.textContent = 'Please fill out all three fields.';
@@ -190,7 +215,7 @@
 
         resultEl.textContent = json.answer;
 
-        const medianValue = json.prices?.[0]?.value || 0;
+        const medianValue  = json.prices?.[0]?.value || 0;
         const offeredValue = json.prices?.[1]?.value || 0;
 
         const ctx = document.getElementById('priceChart');
@@ -206,8 +231,13 @@
             }]
           },
           options: {
-            animation: { duration: 1200, easing: 'easeOutBounce' },
-            scales: { y: { beginAtZero: true } }
+            animation: {
+              duration: 1200,
+              easing: 'easeOutBounce'
+            },
+            scales: {
+              y: { beginAtZero: true }
+            }
           }
         });
 
