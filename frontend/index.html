@@ -23,6 +23,11 @@
       width: 100%;
     }
     h1 { margin-top: 0; }
+    video {
+      width: 100%;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
     label { display: block; margin: 0.5rem 0 0.25rem; font-weight: bold; }
     input, textarea {
       width: 100%;
@@ -51,11 +56,12 @@
   <div class="card">
     <h1>RealRedefined Quiz</h1>
 
+    <!-- 1) Video -->
+    <video controls src="/static/images/real.mp4"></video>
+
+    <!-- 2) Three inputs -->
     <label for="zip">Area / ZIP code</label>
     <input id="zip" type="text" placeholder="e.g. 78046" />
-
-    <label for="median">Median sale price</label>
-    <input id="median" type="number" placeholder="e.g. 229000" />
 
     <label for="proposed">Your proposed sale price</label>
     <input id="proposed" type="number" placeholder="e.g. 850000" />
@@ -73,7 +79,6 @@
 
   <script>
     const zipEl      = document.getElementById('zip');
-    const medianEl   = document.getElementById('median');
     const proposedEl = document.getElementById('proposed');
     const contextEl  = document.getElementById('context');
     const resultEl   = document.getElementById('result');
@@ -91,26 +96,27 @@
 
     document.getElementById('btn-ask').addEventListener('click', async () => {
       const zip      = zipEl.value.trim();
-      const median   = medianEl.value.trim();
       const proposed = proposedEl.value.trim();
       const context  = contextEl.value.trim();
 
-      if (!zip || !median || !proposed) {
-        resultEl.textContent = 'Please fill in ZIP, median price & proposed price.';
+      if (!zip || !proposed) {
+        resultEl.textContent = 'Please fill in ZIP and proposed price.';
         return;
       }
 
       resultEl.textContent = '⏳ Asking AI…';
 
+      // Let AI fetch median price & neighborhood data
       const prompt = `
 I have a property in ZIP code ${zip}.  
-The local median sale price is $${median}.  
 The seller wants to list at $${proposed}.  
-${context ? `Additional context: ${context}` : ''}  
+${context ? `Additional context: ${context}` : ''}
 
-Based on comparable sales, schools, crime, amenities, and market trends,
-please analyze whether $${proposed} is too high, too low, or about right,
-and recommend an adjusted listing price if appropriate.
+Please:
+1) Research the local median sale price & recent comps in ${zip}.  
+2) Analyze school quality, crime, amenities, and market trends.  
+3) Tell me whether $${proposed} is too high, too low, or about right.  
+4) Recommend an adjusted listing price if needed, with reasons.
       `.trim();
 
       try {
