@@ -8,65 +8,64 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background: linear-gradient(135deg, #0a192f, #122741, #203a43);
+      color: #fff;
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
-      color: #fff;
+      align-items: flex-start;
+      padding: 4rem 2rem;
     }
 
     .container {
       display: flex;
       max-width: 1200px;
       width: 100%;
-      gap: 2rem;
+      gap: 3rem;
       align-items: flex-start;
-      padding: 2rem;
     }
 
-    .glass-card {
+    .left-panel {
       flex: 1;
-      backdrop-filter: blur(20px);
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      background: #0c1e35;
+      border-radius: 12px;
       padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
 
-    .glass-card h1 {
-      margin-top: 0;
-      font-size: 2rem;
+    .left-panel h1 {
+      font-size: 2.5rem;
       margin-bottom: 1rem;
+      color: #fff;
     }
 
-    .glass-card p {
+    .left-panel p {
+      color: #ccc;
+      line-height: 1.6;
       margin: 0.5rem 0;
-      line-height: 1.5;
     }
 
-    .branding {
+    .left-panel .branding {
       margin-top: 2rem;
-      font-size: 0.9rem;
-      opacity: 0.8;
+      font-size: 0.85rem;
+      color: #888;
     }
 
-    .video-card {
+    .video-panel {
       flex: 1;
       max-width: 500px;
       text-align: center;
     }
 
-    .video-card video,
-    .video-card img {
+    .video-panel video,
+    .video-panel img {
       width: 100%;
       border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
-    .video-card button {
-      background: #00d26a;
+    .video-panel button {
+      background: #ff4b2b; /* Subtle red/orange pop */
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -77,17 +76,13 @@
       transition: background 0.3s ease;
     }
 
-    .video-card button:hover {
-      background: #00b65c;
+    .video-panel button:hover {
+      background: #e63e1c;
     }
 
     #quizForm {
       display: none;
-      text-align: left;
-      margin-top: 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 1rem;
+      margin-top: 1.5rem;
     }
 
     label {
@@ -129,10 +124,10 @@
     #result {
       margin-top: 1rem;
       padding: 1rem;
-      background: #f1f3f5;
+      background: #fff;
+      color: #333;
       border-radius: 6px;
       min-height: 3em;
-      color: #333;
     }
 
     #chartContainer {
@@ -141,39 +136,40 @@
       height: 260px;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .container {
         flex-direction: column;
+        align-items: center;
         text-align: center;
       }
-      .glass-card {
-        margin-bottom: 2rem;
+      .left-panel {
+        width: 100%;
+      }
+      .video-panel {
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Glass card with tagline -->
-    <div class="glass-card">
+    <div class="left-panel">
       <h1>Welcome to REDEFINED.AI</h1>
       <p>Modern. Sassy. Data-driven Real Estate Insights.</p>
-      <p>Discover smarter ways to refine your listings and stay ahead.</p>
+      <p>Discover smarter ways to refine your listings and stay ahead of the curve.</p>
       <div class="branding">
         Part of the <strong>RealtySass</strong> family.
       </div>
     </div>
 
-    <!-- Video card with splash -->
-    <div class="video-card">
-      <img src="static/images/avatar.png" alt="Avatar" id="avatarImage" />
+    <div class="video-panel">
+      <img src="static/images/avatar.png" alt="Salma Avatar" id="avatarImage" />
       <video id="introVideo" controls style="display: none;">
         <source src="static/images/real.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       <button id="beginBtn">Let's Begin</button>
 
-      <!-- Quiz -->
       <div id="quizForm">
         <label for="zip">Area / ZIP code</label>
         <input id="zip" type="text" placeholder="e.g. 78046" />
@@ -190,7 +186,6 @@
         </div>
 
         <div id="result"></div>
-
         <div id="chartContainer">
           <canvas id="priceChart"></canvas>
         </div>
@@ -198,7 +193,6 @@
     </div>
   </div>
 
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const beginBtn = document.getElementById('beginBtn');
@@ -211,7 +205,6 @@
       beginBtn.style.display = 'none';
       introVideo.style.display = 'block';
       introVideo.play();
-
       introVideo.onended = () => {
         introVideo.style.display = 'none';
         quizForm.style.display = 'block';
