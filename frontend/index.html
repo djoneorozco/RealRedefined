@@ -2,106 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RealRedefined Quiz</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #f5f5f5;
-      margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
     }
     .card {
-      position: relative;
       background: white;
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       max-width: 500px;
       width: 100%;
-      z-index: 1;
     }
-    /* Optional video backdrop */
-    /*
-    video#bg {
-      position: fixed;
-      top:0; left:0;
-      width:100%; height:100%;
-      object-fit:cover;
-      z-index: 0;
-      opacity: 0.4;
-    }
-    */
     h1 { margin-top: 0; }
-    .field {
-      margin-bottom: 1rem;
-    }
-    .field label {
-      display: block;
-      margin-bottom: 0.25rem;
-      font-weight: bold;
-    }
-    .field input,
-    .field textarea {
+    label { display: block; margin-top: 1rem; font-weight: bold; }
+    input, textarea {
       width: 100%;
-      padding: 0.5rem;
       font-size: 1rem;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
       border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
     }
-    textarea { resize: vertical; height: 80px; }
-    .buttons {
-      margin-bottom: 1rem;
-    }
-    .buttons button {
+    textarea { height: 80px; resize: vertical; }
+    button {
+      margin-top: 1rem;
+      margin-right: 0.5rem;
       padding: 0.5rem 1rem;
       font-size: 1rem;
-      margin-right: 0.5rem;
       cursor: pointer;
-      border: 1px solid #888;
-      background: #fff;
+      border: none;
+      background: #007bff;
+      color: white;
       border-radius: 4px;
     }
+    button#btn-test { background: #6c757d; }
     #result {
+      margin-top: 1.5rem;
       padding: 1rem;
       background: #eee;
       border-radius: 4px;
-      min-height: 2em;
       white-space: pre-wrap;
+    }
+    video {
+      width: 100%;
+      border-radius: 4px;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
-  <!-- Optional video backdrop; uncomment to enable -->
-  <!--
-  <video id="bg" muted autoplay loop>
-    <source src="static/images/real.mp4" type="video/mp4" />
-  </video>
-  -->
-
   <div class="card">
     <h1>RealRedefined Quiz</h1>
 
-    <div class="field">
-      <label for="zip">Area / ZIP code</label>
-      <input id="zip" type="text" placeholder="e.g. 78209" />
-    </div>
+    <!-- 1) Optional video -->
+    <video controls autoplay muted loop>
+      <source src="static/real.mp4" type="video/mp4">
+      <!-- fallback text -->
+    </video>
 
-    <div class="field">
-      <label for="price">Proposed sale price</label>
-      <input id="price" type="number" placeholder="e.g. 110000" />
-    </div>
+    <!-- 2) Three questions -->
+    <label for="zip">Area / ZIP code</label>
+    <input id="zip" type="text" placeholder="e.g. 78046"/>
 
-    <div class="field">
-      <label for="details">Additional context or question</label>
-      <textarea id="details" placeholder="e.g. Selling to a family? Any other notes…"></textarea>
-    </div>
+    <label for="price">Proposed sale price</label>
+    <input id="price" type="number" placeholder="e.g. 110000"/>
 
-    <div class="buttons">
+    <label for="context">Additional context or question</label>
+    <textarea id="context" placeholder="e.g. Selling to a family? Any other notes…"></textarea>
+
+    <div>
       <button id="btn-test">Test Backend</button>
       <button id="btn-ask">Ask AI</button>
     </div>
@@ -110,55 +89,62 @@
   </div>
 
   <script>
-    const resultEl = document.getElementById("result");
-    const zipEl    = document.getElementById("zip");
-    const priceEl  = document.getElementById("price");
-    const detailsEl= document.getElementById("details");
+    const resultEl = document.getElementById('result');
+    const zipEl    = document.getElementById('zip');
+    const priceEl  = document.getElementById('price');
+    const ctxEl    = document.getElementById('context');
 
-    document.getElementById("btn-test").addEventListener("click", async () => {
-      resultEl.textContent = "⏳ Testing…";
+    // Health-check
+    document.getElementById('btn-test').addEventListener('click', async () => {
+      resultEl.textContent = '⏳ Testing…';
       try {
-        const res = await fetch("/api/test");
-        const j = await res.json();
-        resultEl.textContent = j.msg || JSON.stringify(j);
-      } catch (e) {
-        resultEl.textContent = "Test failed: " + e;
+        const res = await fetch('/api/test');
+        const { ok, msg } = await res.json();
+        resultEl.textContent = ok ? msg : '❌ Test said not OK';
+      } catch (err) {
+        resultEl.textContent = 'Test failed: ' + err;
       }
     });
 
-    document.getElementById("btn-ask").addEventListener("click", async () => {
-      // Gather and validate
+    // Ask AI
+    document.getElementById('btn-ask').addEventListener('click', async () => {
       const zip     = zipEl.value.trim();
       const price   = priceEl.value.trim();
-      const details = detailsEl.value.trim();
+      const context = ctxEl.value.trim();
+
       if (!zip || !price) {
-        resultEl.textContent = "Please fill in both ZIP code and price.";
+        resultEl.textContent = 'Please enter both ZIP code and proposed price.';
         return;
       }
-      // Build our prompt
-      const prompt = 
-        `Area/ZIP code: ${zip}\n` +
-        `Proposed sale price: $${price}\n` +
-        `Additional: ${details}\n\n` +
-        `Based on local comps, school ratings, crime stats, etc., ` +
-        `provide insights and a recommendation (e.g. adjust price, features to highlight).`;
 
-      resultEl.textContent = "⏳ Asking AI…";
+      // Build a clear, structured prompt for your SaaS scenario:
+      const prompt = `
+I have a property in ZIP code ${zip}. I plan to list it at $${price}.
+Additional context: ${context || 'none'}.
+
+Based on comparable sales, school quality, crime data, and local amenities,
+please:
+1) Analyze whether $${price} is too high, too low, or about right.
+2) Recommend an adjusted listing price if needed.
+3) Summarize your reasoning in bullet points.
+`.trim();
+
+      resultEl.textContent = '⏳ Asking AI…';
 
       try {
-        const res = await fetch("/api/ask", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch('/api/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt })
         });
-        const j = await res.json();
-        if (j.error) {
-          resultEl.textContent = "Error: " + j.error;
+        const json = await res.json();
+        if (json.error) {
+          resultEl.textContent = 'Error: ' + json.error;
         } else {
-          resultEl.textContent = j.answer;
+          resultEl.textContent = json.answer;
         }
-      } catch (e) {
-        resultEl.textContent = "Request failed: " + e;
+      } catch (err) {
+        resultEl.textContent = 'Request failed: ' + err;
       }
     });
   </script>
