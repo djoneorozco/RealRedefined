@@ -64,13 +64,12 @@
   <div class="card">
     <h1>RealRedefined Quiz</h1>
 
-    <!-- 1) Optional video -->
+    <!-- fixed path: -->
     <video controls autoplay muted loop>
-      <source src="static/real.mp4" type="video/mp4">
-      <!-- fallback text -->
+      <source src="static/images/real.mp4" type="video/mp4">
+      Your browser doesn’t support HTML5 video.
     </video>
 
-    <!-- 2) Three questions -->
     <label for="zip">Area / ZIP code</label>
     <input id="zip" type="text" placeholder="e.g. 78046"/>
 
@@ -94,19 +93,16 @@
     const priceEl  = document.getElementById('price');
     const ctxEl    = document.getElementById('context');
 
-    // Health-check
     document.getElementById('btn-test').addEventListener('click', async () => {
       resultEl.textContent = '⏳ Testing…';
       try {
-        const res = await fetch('/api/test');
-        const { ok, msg } = await res.json();
-        resultEl.textContent = ok ? msg : '❌ Test said not OK';
+        const { msg } = await (await fetch('/api/test')).json();
+        resultEl.textContent = msg;
       } catch (err) {
         resultEl.textContent = 'Test failed: ' + err;
       }
     });
 
-    // Ask AI
     document.getElementById('btn-ask').addEventListener('click', async () => {
       const zip     = zipEl.value.trim();
       const price   = priceEl.value.trim();
@@ -117,32 +113,32 @@
         return;
       }
 
-      // Build a clear, structured prompt for your SaaS scenario:
+      // ask for real data
       const prompt = `
-I have a property in ZIP code ${zip}. I plan to list it at $${price}.
-Additional context: ${context || 'none'}.
+Property data:
+• ZIP code: ${zip}
+• Proposed listing price: $${price}
+• Context: ${context || 'none'}
 
-Based on comparable sales, school quality, crime data, and local amenities,
-please:
-1) Analyze whether $${price} is too high, too low, or about right.
-2) Recommend an adjusted listing price if needed.
-3) Summarize your reasoning in bullet points.
+Please:
+1. Compare to recent closed sales (quote an average $).
+2. Report local school ratings (name + rating).
+3. Summarize crime stats (% change or level).
+4. Adjust the list price if needed.
+
+Answer with concrete figures where possible.
 `.trim();
 
       resultEl.textContent = '⏳ Asking AI…';
 
       try {
-        const res = await fetch('/api/ask', {
+        const { answer, error } = await (await fetch('/api/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt })
-        });
-        const json = await res.json();
-        if (json.error) {
-          resultEl.textContent = 'Error: ' + json.error;
-        } else {
-          resultEl.textContent = json.answer;
-        }
+        })).json();
+
+        resultEl.textContent = error ? `Error: ${error}` : answer;
       } catch (err) {
         resultEl.textContent = 'Request failed: ' + err;
       }
