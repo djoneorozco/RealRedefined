@@ -2,97 +2,163 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>RealRedefined Quiz</title>
   <style>
     body {
       font-family: sans-serif;
+      background: #f5f5f5;
+      margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background: #f5f5f5;
+      min-height: 100vh;
     }
     .card {
+      position: relative;
       background: white;
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      max-width: 400px;
+      max-width: 500px;
       width: 100%;
+      z-index: 1;
     }
+    /* Optional video backdrop */
+    /*
+    video#bg {
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      object-fit:cover;
+      z-index: 0;
+      opacity: 0.4;
+    }
+    */
     h1 { margin-top: 0; }
-    textarea {
-      width: 100%;
-      height: 100px;
+    .field {
       margin-bottom: 1rem;
-      font-size: 1rem;
-      padding: 0.5rem;
     }
-    button {
-      margin-right: 0.5rem;
+    .field label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: bold;
+    }
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    textarea { resize: vertical; height: 80px; }
+    .buttons {
+      margin-bottom: 1rem;
+    }
+    .buttons button {
       padding: 0.5rem 1rem;
       font-size: 1rem;
+      margin-right: 0.5rem;
       cursor: pointer;
+      border: 1px solid #888;
+      background: #fff;
+      border-radius: 4px;
     }
     #result {
-      margin-top: 1rem;
       padding: 1rem;
       background: #eee;
       border-radius: 4px;
       min-height: 2em;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
+  <!-- Optional video backdrop; uncomment to enable -->
+  <!--
+  <video id="bg" muted autoplay loop>
+    <source src="static/images/real.mp4" type="video/mp4" />
+  </video>
+  -->
+
   <div class="card">
     <h1>RealRedefined Quiz</h1>
-    <label for="prompt">AI Interaction</label>
-    <textarea id="prompt" placeholder="Type your question here…"></textarea>
-    <div>
+
+    <div class="field">
+      <label for="zip">Area / ZIP code</label>
+      <input id="zip" type="text" placeholder="e.g. 78209" />
+    </div>
+
+    <div class="field">
+      <label for="price">Proposed sale price</label>
+      <input id="price" type="number" placeholder="e.g. 110000" />
+    </div>
+
+    <div class="field">
+      <label for="details">Additional context or question</label>
+      <textarea id="details" placeholder="e.g. Selling to a family? Any other notes…"></textarea>
+    </div>
+
+    <div class="buttons">
       <button id="btn-test">Test Backend</button>
       <button id="btn-ask">Ask AI</button>
     </div>
+
     <div id="result"></div>
   </div>
 
   <script>
-    const resultEl = document.getElementById('result');
-    const promptEl = document.getElementById('prompt');
+    const resultEl = document.getElementById("result");
+    const zipEl    = document.getElementById("zip");
+    const priceEl  = document.getElementById("price");
+    const detailsEl= document.getElementById("details");
 
-    document.getElementById('btn-test').addEventListener('click', async () => {
-      resultEl.textContent = '⏳ Testing…';
+    document.getElementById("btn-test").addEventListener("click", async () => {
+      resultEl.textContent = "⏳ Testing…";
       try {
-        const res = await fetch('/api/test');
-        const json = await res.json();
-        resultEl.textContent = json.msg || 'No message';
-      } catch (err) {
-        resultEl.textContent = 'Test failed: ' + err;
+        const res = await fetch("/api/test");
+        const j = await res.json();
+        resultEl.textContent = j.msg || JSON.stringify(j);
+      } catch (e) {
+        resultEl.textContent = "Test failed: " + e;
       }
     });
 
-    document.getElementById('btn-ask').addEventListener('click', async () => {
-      const prompt = promptEl.value.trim();
-      if (!prompt) {
-        resultEl.textContent = 'Please enter a prompt.';
+    document.getElementById("btn-ask").addEventListener("click", async () => {
+      // Gather and validate
+      const zip     = zipEl.value.trim();
+      const price   = priceEl.value.trim();
+      const details = detailsEl.value.trim();
+      if (!zip || !price) {
+        resultEl.textContent = "Please fill in both ZIP code and price.";
         return;
       }
-      resultEl.textContent = '⏳ Asking AI…';
+      // Build our prompt
+      const prompt = 
+        `Area/ZIP code: ${zip}\n` +
+        `Proposed sale price: $${price}\n` +
+        `Additional: ${details}\n\n` +
+        `Based on local comps, school ratings, crime stats, etc., ` +
+        `provide insights and a recommendation (e.g. adjust price, features to highlight).`;
+
+      resultEl.textContent = "⏳ Asking AI…";
+
       try {
-        const res = await fetch('/api/ask', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("/api/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt })
         });
-        const json = await res.json();
-        if (json.error) {
-          resultEl.textContent = 'Error: ' + json.error;
+        const j = await res.json();
+        if (j.error) {
+          resultEl.textContent = "Error: " + j.error;
         } else {
-          resultEl.textContent = json.answer;
+          resultEl.textContent = j.answer;
         }
-      } catch (err) {
-        resultEl.textContent = 'Request failed: ' + err;
+      } catch (e) {
+        resultEl.textContent = "Request failed: " + e;
       }
     });
   </script>
