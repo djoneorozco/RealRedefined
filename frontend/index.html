@@ -92,6 +92,37 @@
       background: #e63e1c;
     }
 
+    #feelingSection {
+      display: none;
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    #feelingSection h3 {
+      margin-bottom: 1rem;
+    }
+
+    .feelings {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .feelings img {
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s, border 0.2s;
+    }
+
+    .feelings img:hover {
+      transform: scale(1.05);
+      border-color: #f87171;
+    }
+
     #quizForm {
       display: none;
       margin-top: 1.5rem;
@@ -176,6 +207,10 @@
       .left-panel video {
         margin-top: 1rem;
       }
+
+      .feelings {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -201,6 +236,17 @@
         Your browser does not support the video tag.
       </video>
       <button id="beginBtn">Let's Begin</button>
+
+      <div id="feelingSection">
+        <h3>What type of Feeling does your Property Invoke?</h3>
+        <div class="feelings">
+          <img src="static/images/active-family.png" alt="Active Family" data-feeling="Active Family" />
+          <img src="static/images/entertainment.png" alt="Entertainment" data-feeling="Entertainment" />
+          <img src="static/images/relaxation.png" alt="Relaxation" data-feeling="Relaxation" />
+          <img src="static/images/retirement.png" alt="Retirement" data-feeling="Retirement" />
+          <img src="static/images/wfh.png" alt="Work From Home" data-feeling="Work From Home" />
+        </div>
+      </div>
 
       <div id="quizForm">
         <label for="zip">Area / ZIP code</label>
@@ -233,6 +279,7 @@
     const avatarImage = document.getElementById('avatarImage');
     const introVideo = document.getElementById('introVideo');
     const followUpVideo = document.getElementById('followUpVideo');
+    const feelingSection = document.getElementById('feelingSection');
     const quizForm = document.getElementById('quizForm');
     const headline = document.getElementById('headline');
 
@@ -244,20 +291,25 @@
 
       introVideo.onended = () => {
         introVideo.style.display = 'none';
-
-        // Remove headline, paragraphs, branding
         headline.style.display = 'none';
         document.querySelectorAll('.left-panel p, .branding').forEach(el => el.style.display = 'none');
-
-        // Show and play follow-up video on left
         followUpVideo.style.display = 'block';
         followUpVideo.play();
 
         followUpVideo.onended = () => {
           followUpVideo.style.display = 'none';
-          quizForm.style.display = 'block';
+          feelingSection.style.display = 'block';
         };
       };
+    });
+
+    document.querySelectorAll('.feelings img').forEach(img => {
+      img.addEventListener('click', () => {
+        const selectedFeeling = img.getAttribute('data-feeling');
+        console.log('Selected feeling:', selectedFeeling);
+        feelingSection.style.display = 'none';
+        quizForm.style.display = 'block';
+      });
     });
 
     const resultEl = document.getElementById('result');
