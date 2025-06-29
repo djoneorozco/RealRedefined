@@ -19,44 +19,31 @@
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      max-width: 500px;
+      max-width: 400px;
       width: 100%;
     }
     h1 { margin-top: 0; }
-    label { display: block; margin-top: 1rem; font-weight: bold; }
+    label { display: block; margin: 0.5rem 0 0.25rem; font-weight: bold; }
     input, textarea {
       width: 100%;
       font-size: 1rem;
       padding: 0.5rem;
-      margin-top: 0.25rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      margin-bottom: 1rem;
       box-sizing: border-box;
     }
-    textarea { height: 80px; resize: vertical; }
+    textarea { height: 80px; }
     button {
-      margin-top: 1rem;
       margin-right: 0.5rem;
       padding: 0.5rem 1rem;
       font-size: 1rem;
       cursor: pointer;
-      border: none;
-      background: #007bff;
-      color: white;
-      border-radius: 4px;
     }
-    button#btn-test { background: #6c757d; }
     #result {
-      margin-top: 1.5rem;
+      margin-top: 1rem;
       padding: 1rem;
       background: #eee;
       border-radius: 4px;
-      white-space: pre-wrap;
-    }
-    video {
-      width: 100%;
-      border-radius: 4px;
-      margin-bottom: 1rem;
+      min-height: 2em;
     }
   </style>
 </head>
@@ -64,17 +51,14 @@
   <div class="card">
     <h1>RealRedefined Quiz</h1>
 
-    <!-- fixed path: -->
-    <video controls autoplay muted loop>
-      <source src="static/images/real.mp4" type="video/mp4">
-      Your browser doesn’t support HTML5 video.
-    </video>
+    <label for="zip">Area / ZIP code</label>
+    <input id="zip" type="text" placeholder="e.g. 78046" />
 
-    <label for="zip">Area / ZIP code</label>
-    <input id="zip" type="text" placeholder="e.g. 78046"/>
+    <label for="median">Median sale price</label>
+    <input id="median" type="number" placeholder="e.g. 229000" />
 
-    <label for="price">Proposed sale price</label>
-    <input id="price" type="number" placeholder="e.g. 110000"/>
+    <label for="proposed">Your proposed sale price</label>
+    <input id="proposed" type="number" placeholder="e.g. 850000" />
 
     <label for="context">Additional context or question</label>
     <textarea id="context" placeholder="e.g. Selling to a family? Any other notes…"></textarea>
@@ -88,57 +72,59 @@
   </div>
 
   <script>
-    const resultEl = document.getElementById('result');
-    const zipEl    = document.getElementById('zip');
-    const priceEl  = document.getElementById('price');
-    const ctxEl    = document.getElementById('context');
+    const zipEl      = document.getElementById('zip');
+    const medianEl   = document.getElementById('median');
+    const proposedEl = document.getElementById('proposed');
+    const contextEl  = document.getElementById('context');
+    const resultEl   = document.getElementById('result');
 
     document.getElementById('btn-test').addEventListener('click', async () => {
       resultEl.textContent = '⏳ Testing…';
       try {
-        const { msg } = await (await fetch('/api/test')).json();
-        resultEl.textContent = msg;
+        const res = await fetch('/api/test');
+        const json = await res.json();
+        resultEl.textContent = json.msg || 'No message';
       } catch (err) {
         resultEl.textContent = 'Test failed: ' + err;
       }
     });
 
     document.getElementById('btn-ask').addEventListener('click', async () => {
-      const zip     = zipEl.value.trim();
-      const price   = priceEl.value.trim();
-      const context = ctxEl.value.trim();
+      const zip      = zipEl.value.trim();
+      const median   = medianEl.value.trim();
+      const proposed = proposedEl.value.trim();
+      const context  = contextEl.value.trim();
 
-      if (!zip || !price) {
-        resultEl.textContent = 'Please enter both ZIP code and proposed price.';
+      if (!zip || !median || !proposed) {
+        resultEl.textContent = 'Please fill in ZIP, median price & proposed price.';
         return;
       }
 
-      // ask for real data
-      const prompt = `
-Property data:
-• ZIP code: ${zip}
-• Proposed listing price: $${price}
-• Context: ${context || 'none'}
-
-Please:
-1. Compare to recent closed sales (quote an average $).
-2. Report local school ratings (name + rating).
-3. Summarize crime stats (% change or level).
-4. Adjust the list price if needed.
-
-Answer with concrete figures where possible.
-`.trim();
-
       resultEl.textContent = '⏳ Asking AI…';
 
+      const prompt = `
+I have a property in ZIP code ${zip}.  
+The local median sale price is $${median}.  
+The seller wants to list at $${proposed}.  
+${context ? `Additional context: ${context}` : ''}  
+
+Based on comparable sales, schools, crime, amenities, and market trends,
+please analyze whether $${proposed} is too high, too low, or about right,
+and recommend an adjusted listing price if appropriate.
+      `.trim();
+
       try {
-        const { answer, error } = await (await fetch('/api/ask', {
+        const res = await fetch('/api/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt })
-        })).json();
-
-        resultEl.textContent = error ? `Error: ${error}` : answer;
+        });
+        const json = await res.json();
+        if (json.error) {
+          resultEl.textContent = 'Error: ' + json.error;
+        } else {
+          resultEl.textContent = json.answer;
+        }
       } catch (err) {
         resultEl.textContent = 'Request failed: ' + err;
       }
