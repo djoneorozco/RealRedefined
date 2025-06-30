@@ -1,0 +1,6 @@
+.env
+backend/node_modules/
+frontend/static/.DS_Store
+.DS_Store
+frontend/index.html.save
+package-lock.json
