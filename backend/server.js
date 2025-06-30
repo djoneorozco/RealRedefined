@@ -93,14 +93,30 @@ app.post("/api/ask", async (req, res) => {
     });
     const answer = completion.choices[0]?.message?.content || "";
 
-    // 7d) return both answer + prices array for charting
+    // ✅ NEW: Add dummy schools list + crime block
+    const schools = [
+      { name: "Lincoln High School", grades: "9-12", type: "Public" },
+      { name: "Washington Elementary", grades: "K-5", type: "Charter" }
+    ];
+
+    const crime = {
+      riskLevel: "Low",
+      city: "Laredo",
+      violentCrimeRate: "3.2 per 1,000",
+      propertyCrimeRate: "15.5 per 1,000"
+    };
+
+    // 7d) return answer, prices, schools, crime
     res.json({
       answer,
       prices: [
         { label: "Median", value: median || 0 },
         { label: "You",    value: Number(price) }
-      ]
+      ],
+      schools,
+      crime
     });
+
   } catch (err) {
     console.error("❌ AI error:", err);
     res.status(500).json({ error: "OpenAI request failed." });
