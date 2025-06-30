@@ -1,9 +1,11 @@
 // backend/server.js
+
 // 1) Imports + ESM __dirname shim
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { OpenAI } from "openai";
+import multer from "multer"; // ✅ NEW
 
 import path from "path";
 import { fileURLToPath } from "url";
@@ -16,6 +18,22 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ✅ NEW: Setup Multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "../uploads")); // Save to /uploads
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + "-" + file.originalname);
+  }
+});
+const upload = multer({ storage });
+
+// ✅ Make /uploads public
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 // Serve your built frontend (including real.mp4 in /frontend)
 app.use(express.static(path.join(__dirname, "../frontend")));
 
@@ -39,7 +57,7 @@ app.get("/api/test", (_req, res) => {
 app.get("/api/median/:zip", async (req, res) => {
   const zip = req.params.zip;
   const url = new URL("https://api.census.gov/data/2022/acs/acs5");
-  url.searchParams.set("get", "NAME,B25077_001E");                // B25077_001E = Median home value
+  url.searchParams.set("get", "NAME,B25077_001E");
   url.searchParams.set("for", `zip code tabulation area:${zip}`);
   url.searchParams.set("key", process.env.CENSUS_API_KEY);
 
@@ -47,7 +65,6 @@ app.get("/api/median/:zip", async (req, res) => {
     const r = await fetch(url);
     if (!r.ok) throw new Error(`Census ${r.status}`);
     const data = await r.json();
-    console.log("Census raw:", data);
     const medianRaw = data[1]?.[1];
     const median = medianRaw ? Number(medianRaw) : null;
     if (!median) throw new Error("No median returned");
@@ -58,8 +75,8 @@ app.get("/api/median/:zip", async (req, res) => {
   }
 });
 
-// 7) AI + chart data endpoint
-app.post("/api/ask", async (req, res) => {
+// 7) AI + chart data endpoint WITH file upload!
+app.post("/api/ask", upload.single("image"), async (req, res) => {
   const { zip, prompt, price } = req.body;
   if (!zip || !prompt || price == null) {
     return res.status(400).json({
@@ -67,7 +84,9 @@ app.post("/api/ask", async (req, res) => {
     });
   }
 
-  // 7a) fetch median
+  console.log("📸 Uploaded file info:", req.file);
+
+  // 7a) Fetch median
   let median = null;
   try {
     const mRes = await fetch(`http://localhost:${process.env.PORT||10000}/api/median/${zip}`);
@@ -77,13 +96,13 @@ app.post("/api/ask", async (req, res) => {
     console.warn("Could not fetch median, proceeding without it:", e);
   }
 
-  // 7b) build system message
+  // 7b) Build system message
   const systemMsg = median
     ? `You are a real-estate AI. ZIP ${zip} has a median home value of $${median.toLocaleString()}.`
     : "You are a real-estate AI.";
 
   try {
-    // 7c) call OpenAI
+    // 7c) Call OpenAI for text answer
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -93,12 +112,11 @@ app.post("/api/ask", async (req, res) => {
     });
     const answer = completion.choices[0]?.message?.content || "";
 
-    // ✅ NEW: Add dummy schools list + crime block
+    // ✅ NEW: Dummy schools + crime
     const schools = [
       { name: "Lincoln High School", grades: "9-12", type: "Public" },
       { name: "Washington Elementary", grades: "K-5", type: "Charter" }
     ];
-
     const crime = {
       riskLevel: "Low",
       city: "Laredo",
@@ -106,15 +124,23 @@ app.post("/api/ask", async (req, res) => {
       propertyCrimeRate: "15.5 per 1,000"
     };
 
-    // 7d) return answer, prices, schools, crime
+    // ✅ NEW: If uploaded file, build URL
+    let enhancedImageUrl = null;
+    if (req.file) {
+      // Later: Do AI enhancement here
+      enhancedImageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    // 7d) Return everything
     res.json({
       answer,
       prices: [
         { label: "Median", value: median || 0 },
-        { label: "You",    value: Number(price) }
+        { label: "You", value: Number(price) }
       ],
       schools,
-      crime
+      crime,
+      enhancedImageUrl
     });
 
   } catch (err) {
