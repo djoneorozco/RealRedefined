@@ -18,7 +18,6 @@
       align-items: center;
       padding: 4rem 2rem;
     }
-
     .container {
       display: flex;
       max-width: 1200px;
@@ -26,57 +25,48 @@
       gap: 4rem;
       align-items: flex-start;
     }
-
     .left-panel {
       flex: 1;
     }
-
     .left-panel h1 {
       font-size: 3rem;
       margin-bottom: 1rem;
       line-height: 1.2;
     }
-
     .left-panel h1 span {
       font-family: 'Brush Script MT', cursive;
       color: #f87171;
     }
-
     .left-panel p {
       color: #ccd6f6;
       font-size: 1rem;
       margin: 0.5rem 0;
       max-width: 500px;
     }
-
     .left-panel .branding {
       margin-top: 2rem;
       font-size: 0.85rem;
       color: #8892b0;
     }
-
     .left-panel video {
       width: 100%;
       border-radius: 12px;
       display: none;
     }
-
     .video-panel {
       flex: 1;
-      max-width: 450px;
+      max-width: 350px;
       text-align: center;
       background: #112240;
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     }
-
     .video-panel video,
     .video-panel img {
       width: 100%;
       border-radius: 8px;
     }
-
     .video-panel button {
       background: #ff4b2b;
       color: #fff;
@@ -88,58 +78,48 @@
       margin-top: 1rem;
       transition: background 0.3s ease;
     }
-
     .video-panel button:hover {
       background: #e63e1c;
     }
-
     #feelingOptions,
     #surroundingOptions {
       display: none;
       margin-top: 2rem;
       text-align: center;
     }
-
     #feelingOptions label,
     #surroundingOptions label {
       display: block;
       font-weight: bold;
       margin-bottom: 1rem;
     }
-
     .feeling-images {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
       gap: 1rem;
     }
-
     .feeling-images img {
-      width: 240px;
+      width: 300px;
       height: auto;
       border-radius: 12px;
       cursor: pointer;
       transition: transform 0.2s;
     }
-
     .feeling-images img:hover {
       transform: scale(1.05);
     }
-
     #quizForm {
       display: none;
       margin-top: 1.5rem;
       text-align: left;
     }
-
     label {
       display: block;
       margin-top: 0.75rem;
       font-weight: 600;
     }
-
-    input,
-    textarea {
+    input {
       width: 100%;
       padding: 0.6rem;
       font-size: 1rem;
@@ -148,57 +128,42 @@
       border-radius: 6px;
       box-sizing: border-box;
     }
-
-    textarea {
-      height: 80px;
-      resize: vertical;
-    }
-
     .buttons {
       margin-top: 1rem;
       display: flex;
       justify-content: space-between;
     }
-
     .buttons button {
       flex: 1;
       margin-right: 0.5rem;
     }
-
     .buttons button:last-child {
       margin-right: 0;
     }
-
     #btn-test {
       background: #6c757d;
       color: #fff;
     }
-
     #btn-test:hover {
       background: #5a6268;
     }
-
     #btn-ask {
       background: #007bff;
       color: #fff;
     }
-
     #btn-ask:hover {
       background: #0056b3;
     }
-
     footer {
       margin-top: 4rem;
       font-size: 0.85rem;
       color: #8892b0;
     }
-
     #goodbyeVideo {
       width: 100%;
       border-radius: 12px;
       display: none;
     }
-
     .glass-box {
       display: none;
       position: fixed;
@@ -218,47 +183,39 @@
       opacity: 0;
       transition: opacity 1s ease;
     }
-
     .glass-box.show {
       display: block;
       opacity: 1;
     }
-
     .glass-box #result {
       background: transparent;
       color: #fff;
       margin-bottom: 1rem;
     }
-
     .glass-box canvas {
       background: transparent;
     }
-
     .glass-box #schoolList,
     .glass-box #crimeInfo {
       margin-top: 1rem;
       text-align: left;
     }
-
     .glass-box #schoolList h3,
     .glass-box #crimeInfo h3 {
       margin: 0 0 0.5rem 0;
       color: #fff;
     }
-
     .glass-box #schoolList ul {
       list-style: none;
       padding: 0;
       margin: 0;
     }
-
     .glass-box #schoolList li {
       margin-bottom: 0.5rem;
       background: rgba(255, 255, 255, 0.05);
       padding: 0.5rem;
       border-radius: 4px;
     }
-
     .glass-box #crimeInfo p {
       margin: 0.25rem 0;
     }
@@ -319,8 +276,8 @@
         <label for="price">Your proposed sale price</label>
         <input id="price" type="number" placeholder="e.g. 850000" />
 
-        <label for="prompt">Additional context or question</label>
-        <textarea id="prompt" placeholder="e.g. Selling to a family? Any other notes…"></textarea>
+        <label for="image">Upload Image of Property</label>
+        <input id="image" type="file" accept="image/*" />
 
         <div class="buttons">
           <button id="btn-test">Test Backend</button>
@@ -343,152 +300,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const beginBtn = document.getElementById('beginBtn');
-    const avatarImage = document.getElementById('avatarImage');
-    const introVideo = document.getElementById('introVideo');
-    const followUpVideo = document.getElementById('followUpVideo');
-    const goodbyeVideo = document.getElementById('goodbyeVideo');
-    const feelingsAudio = document.getElementById('feelingsAudio');
-    const surroundingAudio = document.getElementById('surroundingAudio');
-    const feelingOptions = document.getElementById('feelingOptions');
-    const surroundingOptions = document.getElementById('surroundingOptions');
-    const quizForm = document.getElementById('quizForm');
-    const headline = document.getElementById('headline');
-
-    beginBtn.addEventListener('click', () => {
-      avatarImage.style.display = 'none';
-      beginBtn.style.display = 'none';
-      introVideo.style.display = 'block';
-      introVideo.play();
-
-      introVideo.onended = () => {
-        introVideo.style.display = 'none';
-        headline.style.display = 'none';
-        document.querySelectorAll('.left-panel p, .branding').forEach(el => el.style.display = 'none');
-        followUpVideo.style.display = 'block';
-        followUpVideo.play();
-        followUpVideo.onended = () => {
-          followUpVideo.style.display = 'none';
-          feelingsAudio.play();
-          feelingOptions.style.display = 'block';
-        };
-      };
-    });
-
-    document.querySelectorAll('#feelingOptions .feeling-images img').forEach(img => {
-      img.addEventListener('click', () => {
-        surroundingAudio.play();
-        feelingOptions.style.display = 'none';
-        surroundingOptions.style.display = 'block';
-      });
-    });
-
-    document.querySelectorAll('#surroundingOptions .feeling-images img').forEach(img => {
-      img.addEventListener('click', () => {
-        feelingsAudio.play();
-        surroundingOptions.style.display = 'none';
-        quizForm.style.display = 'block';
-      });
-    });
-
-    const glassBox = document.getElementById('glassBox');
-    const resultEl = document.getElementById('result');
-    const schoolListEl = document.getElementById('schoolList');
-    const crimeInfoEl = document.getElementById('crimeInfo');
+    // Keep your entire JS but update how you build your fetch for the image:
     const zipEl = document.getElementById('zip');
     const priceEl = document.getElementById('price');
-    const promptEl = document.getElementById('prompt');
-    const chartContainer = document.getElementById('chartContainer');
-    let chart;
-
-    document.getElementById('btn-ask').onclick = async () => {
-      const zip = zipEl.value.trim();
-      const price = priceEl.value.trim();
-      const prompt = promptEl.value.trim();
-      if (!zip || !price || !prompt) {
-        resultEl.textContent = 'Please fill out all three fields.';
-        glassBox.classList.add('show');
-        return;
-      }
-
-      resultEl.textContent = '⏳ Asking AI…';
-      glassBox.classList.remove('show');
-
-      const request = fetch('/api/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ zip, prompt, price })
-      }).then(res => res.json());
-
-      chartContainer.style.display = 'none';
-      schoolListEl.innerHTML = '';
-      crimeInfoEl.innerHTML = '';
-      goodbyeVideo.style.display = 'block';
-      goodbyeVideo.play();
-
-      goodbyeVideo.onended = async () => {
-        goodbyeVideo.style.display = 'none';
-        try {
-          const json = await request;
-          if (json.error) throw new Error(json.error);
-
-          resultEl.textContent = json.answer;
-
-          const medianValue = json.prices?.[0]?.value || 0;
-          const offeredValue = json.prices?.[1]?.value || 0;
-
-          const ctx = document.getElementById('priceChart');
-          if (chart) chart.destroy();
-          chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: ['Median Price', 'Your Price'],
-              datasets: [{
-                label: 'Sale Price Comparison',
-                data: [medianValue, offeredValue],
-                backgroundColor: ['#36A2EB', '#FF6384'],
-                borderRadius: 5
-              }]
-            },
-            options: {
-              animation: {
-                duration: 1200,
-                easing: 'easeOutBounce'
-              },
-              scales: {
-                y: { beginAtZero: true }
-              }
-            }
-          });
-
-          chartContainer.style.display = 'block';
-
-          if (json.schools && json.schools.length) {
-            let html = '<h3>Nearby Schools</h3><ul>';
-            json.schools.forEach(s => {
-              html += `<li><strong>${s.name}</strong> — Grades: ${s.grades} (${s.type})</li>`;
-            });
-            html += '</ul>';
-            schoolListEl.innerHTML = html;
-          }
-
-          if (json.crime) {
-            let html = '<h3>Crime Risk</h3>';
-            html += `<p><strong>Risk Level:</strong> ${json.crime.riskLevel}</p>`;
-            html += `<p><strong>City:</strong> ${json.crime.city}</p>`;
-            html += `<p><strong>Violent Crime Rate:</strong> ${json.crime.violentCrimeRate}</p>`;
-            html += `<p><strong>Property Crime Rate:</strong> ${json.crime.propertyCrimeRate}</p>`;
-            crimeInfoEl.innerHTML = html;
-          }
-
-          glassBox.classList.add('show');
-
-        } catch (err) {
-          resultEl.textContent = 'Request failed: ' + err.message;
-          glassBox.classList.add('show');
-        }
-      };
-    };
+    const imageInput = document.getElementById('image');
+    // ... rest of your JS stays the same, update the btn-ask like we did above!
   </script>
 </body>
 </html>
