@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>REDEFINED.AI</title>
   <style>
-    /* === Keep your styles as before === */
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -27,22 +26,28 @@
       align-items: flex-start;
     }
 
-    .left-panel { flex: 1; }
+    .left-panel {
+      flex: 1;
+    }
+
     .left-panel h1 {
       font-size: 3rem;
       margin-bottom: 1rem;
       line-height: 1.2;
     }
+
     .left-panel h1 span {
       font-family: 'Brush Script MT', cursive;
       color: #f87171;
     }
+
     .left-panel p {
       color: #ccd6f6;
       font-size: 1rem;
       margin: 0.5rem 0;
       max-width: 500px;
     }
+
     .left-panel .branding {
       margin-top: 2rem;
       font-size: 0.85rem;
@@ -64,65 +69,170 @@
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     }
+
     .video-panel video,
-    .video-panel img { width: 100%; border-radius: 8px; }
-    .video-panel button {
-      background: #ff4b2b; color: #fff; border: none; border-radius: 6px;
-      padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer;
-      margin-top: 1rem; transition: background 0.3s ease;
+    .video-panel img {
+      width: 100%;
+      border-radius: 8px;
     }
-    .video-panel button:hover { background: #e63e1c; }
+
+    .video-panel button {
+      background: #ff4b2b;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .video-panel button:hover {
+      background: #e63e1c;
+    }
 
     #feelingOptions {
-      display: none; margin-top: 2rem; text-align: center;
+      display: none;
+      margin-top: 2rem;
+      text-align: center;
     }
+
     #feelingOptions label {
-      display: block; font-weight: bold; margin-bottom: 1rem;
+      display: block;
+      font-weight: bold;
+      margin-bottom: 1rem;
     }
+
     .feeling-images {
-      display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
+
     .feeling-images img {
-      width: 240px; height: auto; border-radius: 12px; cursor: pointer;
+      width: 240px;
+      height: auto;
+      border-radius: 12px;
+      cursor: pointer;
       transition: transform 0.2s;
     }
-    .feeling-images img:hover { transform: scale(1.05); }
+
+    .feeling-images img:hover {
+      transform: scale(1.05);
+    }
 
     #quizForm {
-      display: none; margin-top: 1.5rem; text-align: left;
+      display: none;
+      margin-top: 1.5rem;
+      text-align: left;
     }
-    label { display: block; margin-top: 0.75rem; font-weight: 600; }
+
+    label {
+      display: block;
+      margin-top: 0.75rem;
+      font-weight: 600;
+    }
+
     input, textarea {
-      width: 100%; padding: 0.6rem; font-size: 1rem; margin-top: 0.25rem;
-      border: none; border-radius: 6px; box-sizing: border-box;
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      margin-top: 0.25rem;
+      border: none;
+      border-radius: 6px;
+      box-sizing: border-box;
     }
+
     textarea { height: 80px; resize: vertical; }
-    .buttons { margin-top: 1rem; display: flex; justify-content: space-between; }
-    .buttons button { flex: 1; margin-right: 0.5rem; }
+
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .buttons button {
+      flex: 1;
+      margin-right: 0.5rem;
+    }
+
     .buttons button:last-child { margin-right: 0; }
 
-    #btn-test { background: #6c757d; color: #fff; }
+    #btn-test {
+      background: #6c757d;
+      color: #fff;
+    }
     #btn-test:hover { background: #5a6268; }
-    #btn-ask { background: #007bff; color: #fff; }
+
+    #btn-ask {
+      background: #007bff;
+      color: #fff;
+    }
     #btn-ask:hover { background: #0056b3; }
 
-    footer { margin-top: 4rem; font-size: 0.85rem; color: #8892b0; }
+    #result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #fff;
+      color: #333;
+      border-radius: 6px;
+      min-height: 3em;
+    }
+
+    #chartContainer {
+      margin-top: 1rem;
+      width: 100%;
+      height: 260px;
+    }
+
+    footer {
+      margin-top: 4rem;
+      font-size: 0.85rem;
+      color: #8892b0;
+    }
 
     #goodbyeVideo {
-      width: 100%; border-radius: 12px; display: none;
+      width: 100%;
+      border-radius: 12px;
+      display: none;
     }
 
     .glass-box {
-      display: none; position: fixed; top: 50%; left: 50%;
-      transform: translate(-50%, -50%); background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      padding: 2rem; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      text-align: center; z-index: 999; max-width: 500px; width: 90%;
-      opacity: 0; transition: opacity 1s ease;
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      text-align: center;
+      z-index: 999;
+      max-width: 500px;
+      width: 90%;
+      opacity: 0;
+      transition: opacity 1s ease;
     }
-    .glass-box.show { display: block; opacity: 1; }
-    .glass-box #result { background: transparent; color: #fff; margin-bottom: 1rem; }
-    .glass-box canvas { background: transparent; }
+
+    .glass-box.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .glass-box #result {
+      background: transparent;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    .glass-box canvas {
+      background: transparent;
+    }
   </style>
 </head>
 <body>
@@ -136,9 +246,11 @@
       <video id="followUpVideo" controls style="display: none;">
         <source src="static/images/real2.mp4" type="video/mp4" />
       </video>
+
       <video id="goodbyeVideo" controls style="display: none;">
         <source src="static/images/goodbye.mp4" type="video/mp4" />
       </video>
+
       <audio id="feelingsAudio" src="static/images/feelings.mp3"></audio>
     </div>
 
@@ -303,4 +415,4 @@
     };
   </script>
 </body>
-</html>
+</ht
