@@ -172,38 +172,59 @@
     }
     #btn-ask:hover { background: #0056b3; }
 
-    #result {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: #fff;
-      color: #333;
-      border-radius: 6px;
-      min-height: 3em;
-    }
-
-    #chartContainer {
-      margin-top: 1rem;
-      width: 100%;
-      height: 260px;
-    }
-
     footer {
       margin-top: 4rem;
       font-size: 0.85rem;
       color: #8892b0;
     }
 
-    /* Added style for goodbyeVideo */
+    /* goodbye video style */
     #goodbyeVideo {
       width: 100%;
       border-radius: 12px;
       display: none;
     }
+
+    /* Glass box styling with fade effect */
+    .glass-box {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      text-align: center;
+      z-index: 999;
+      max-width: 500px;
+      width: 90%;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .glass-box.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .glass-box #result {
+      background: transparent;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    .glass-box canvas {
+      background: transparent;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="left-panel" id="leftPanel">
+    <div class="left-panel">
       <h1 id="headline">The Smartest Way to <span>Refine</span> Listings</h1>
       <p>Modern. Sassy. Data-driven Real Estate Insights.</p>
       <p>Discover smarter ways to refine your listings and stay ahead of the curve.</p>
@@ -211,13 +232,10 @@
 
       <video id="followUpVideo" controls style="display: none;">
         <source src="static/images/real2.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
       </video>
 
-      <!-- NEW goodbye.mp4 video -->
       <video id="goodbyeVideo" controls style="display: none;">
         <source src="static/images/goodbye.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
       </video>
 
       <audio id="feelingsAudio" src="static/images/feelings.mp3"></audio>
@@ -227,7 +245,6 @@
       <img src="static/images/avatar.png" alt="Elena Avatar" id="avatarImage" />
       <video id="introVideo" controls style="display: none;">
         <source src="static/images/real.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
       </video>
       <button id="beginBtn">Let's Begin</button>
 
@@ -256,12 +273,15 @@
           <button id="btn-test">Test Backend</button>
           <button id="btn-ask">Ask AI</button>
         </div>
-
-        <div id="result"></div>
-        <div id="chartContainer">
-          <canvas id="priceChart"></canvas>
-        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Glass box -->
+  <div class="glass-box" id="glassBox">
+    <div id="result"></div>
+    <div id="chartContainer">
+      <canvas id="priceChart"></canvas>
     </div>
   </div>
 
@@ -269,63 +289,14 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const beginBtn = document.getElementById('beginBtn');
-    const avatarImage = document.getElementById('avatarImage');
-    const introVideo = document.getElementById('introVideo');
-    const followUpVideo = document.getElementById('followUpVideo');
     const goodbyeVideo = document.getElementById('goodbyeVideo');
-    const feelingsAudio = document.getElementById('feelingsAudio');
-    const feelingOptions = document.getElementById('feelingOptions');
-    const quizForm = document.getElementById('quizForm');
-    const headline = document.getElementById('headline');
-
-    beginBtn.addEventListener('click', () => {
-      avatarImage.style.display = 'none';
-      beginBtn.style.display = 'none';
-      introVideo.style.display = 'block';
-      introVideo.play();
-
-      introVideo.onended = () => {
-        introVideo.style.display = 'none';
-        headline.style.display = 'none';
-        document.querySelectorAll('.left-panel p, .branding').forEach(el => el.style.display = 'none');
-
-        followUpVideo.style.display = 'block';
-        followUpVideo.play();
-
-        followUpVideo.onended = () => {
-          followUpVideo.style.display = 'none';
-          feelingsAudio.play();
-          feelingOptions.style.display = 'block';
-        };
-      };
-    });
-
-    document.querySelectorAll('.feeling-images img').forEach(img => {
-      img.addEventListener('click', () => {
-        feelingOptions.style.display = 'none';
-        quizForm.style.display = 'block';
-      });
-    });
-
+    const glassBox = document.getElementById('glassBox');
     const resultEl = document.getElementById('result');
     const zipEl = document.getElementById('zip');
     const priceEl = document.getElementById('price');
     const promptEl = document.getElementById('prompt');
     const chartContainer = document.getElementById('chartContainer');
-
     let chart;
-
-    document.getElementById('btn-test').onclick = async () => {
-      resultEl.textContent = '⏳ Testing…';
-      try {
-        const r = await fetch('/api/test');
-        const j = await r.json();
-        resultEl.textContent = j.msg || 'No message';
-      } catch (e) {
-        resultEl.textContent = 'Test failed: ' + e;
-      }
-    };
 
     document.getElementById('btn-ask').onclick = async () => {
       const zip = zipEl.value.trim();
@@ -333,27 +304,30 @@
       const prompt = promptEl.value.trim();
       if (!zip || !price || !prompt) {
         resultEl.textContent = 'Please fill out all three fields.';
+        glassBox.classList.add('show');
         return;
       }
 
       resultEl.textContent = '⏳ Asking AI…';
-      if (chart) chart.destroy();
+      glassBox.classList.remove('show');
 
+      // Start request
+      const request = fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zip, prompt, price })
+      }).then(res => res.json());
+
+      // Play video
       chartContainer.style.display = 'none';
       goodbyeVideo.style.display = 'block';
       goodbyeVideo.play();
 
       goodbyeVideo.onended = async () => {
         goodbyeVideo.style.display = 'none';
-        chartContainer.style.display = 'block';
 
         try {
-          const res = await fetch('/api/ask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ zip, prompt, price })
-          });
-          const json = await res.json();
+          const json = await request;
           if (json.error) throw new Error(json.error);
 
           resultEl.textContent = json.answer;
@@ -362,6 +336,7 @@
           const offeredValue = json.prices?.[1]?.value || 0;
 
           const ctx = document.getElementById('priceChart');
+          if (chart) chart.destroy();
           chart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -384,8 +359,12 @@
             }
           });
 
+          chartContainer.style.display = 'block';
+          glassBox.classList.add('show');
+
         } catch (err) {
           resultEl.textContent = 'Request failed: ' + err.message;
+          glassBox.classList.add('show');
         }
       };
     };
