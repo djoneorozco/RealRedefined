@@ -10,13 +10,9 @@ import multer from "multer"; // ✅ NEW
 import path from "path";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname  = path.dirname(__filename);
 
-// ✅ NEW: Load .env from parent dir
-dotenv.config({ path: path.join(__dirname, "../.env") });
-
-// ✅ OPTIONAL: Debug log to verify
-console.log("✅ OPENAI_API_KEY:", process.env.OPENAI_API_KEY);
+dotenv.config();
 
 // 2) App + middleware
 const app = express();
@@ -29,9 +25,9 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, "../uploads")); // Save to /uploads
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
     cb(null, uniqueSuffix + "-" + file.originalname);
-  },
+  }
 });
 const upload = multer({ storage });
 
@@ -43,12 +39,10 @@ app.use(express.static(path.join(__dirname, "../frontend")));
 
 // 3) Validate keys
 if (!process.env.OPENAI_API_KEY) {
-  console.error("❌ Missing OPENAI_API_KEY");
-  process.exit(1);
+  console.error("❌ Missing OPENAI_API_KEY"); process.exit(1);
 }
 if (!process.env.CENSUS_API_KEY) {
-  console.error("❌ Missing CENSUS_API_KEY");
-  process.exit(1);
+  console.error("❌ Missing CENSUS_API_KEY"); process.exit(1);
 }
 
 // 4) OpenAI client
@@ -86,7 +80,7 @@ app.post("/api/ask", upload.single("image"), async (req, res) => {
   const { zip, prompt, price } = req.body;
   if (!zip || !prompt || price == null) {
     return res.status(400).json({
-      error: "Please include `zip`, `prompt`, and `price` in request body.",
+      error: "Please include `zip`, `prompt`, and `price` in request body."
     });
   }
 
@@ -95,9 +89,7 @@ app.post("/api/ask", upload.single("image"), async (req, res) => {
   // 7a) Fetch median
   let median = null;
   try {
-    const mRes = await fetch(
-      `http://localhost:${process.env.PORT || 10000}/api/median/${zip}`
-    );
+    const mRes = await fetch(`http://localhost:${process.env.PORT||10000}/api/median/${zip}`);
     const mJson = await mRes.json();
     median = mJson.median;
   } catch (e) {
@@ -115,10 +107,7 @@ app.post("/api/ask", upload.single("image"), async (req, res) => {
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: systemMsg },
-        {
-          role: "user",
-          content: `ZIP: ${zip}\nAsking: ${prompt}\nMy Price: $${price}`,
-        },
+        { role: "user", content: `ZIP: ${zip}\nAsking: ${prompt}\nMy Price: $${price}` }
       ],
     });
     const answer = completion.choices[0]?.message?.content || "";
@@ -126,13 +115,13 @@ app.post("/api/ask", upload.single("image"), async (req, res) => {
     // ✅ NEW: Dummy schools + crime
     const schools = [
       { name: "Lincoln High School", grades: "9-12", type: "Public" },
-      { name: "Washington Elementary", grades: "K-5", type: "Charter" },
+      { name: "Washington Elementary", grades: "K-5", type: "Charter" }
     ];
     const crime = {
       riskLevel: "Low",
       city: "Laredo",
       violentCrimeRate: "3.2 per 1,000",
-      propertyCrimeRate: "15.5 per 1,000",
+      propertyCrimeRate: "15.5 per 1,000"
     };
 
     // ✅ NEW: If uploaded file, build URL
@@ -147,12 +136,13 @@ app.post("/api/ask", upload.single("image"), async (req, res) => {
       answer,
       prices: [
         { label: "Median", value: median || 0 },
-        { label: "You", value: Number(price) },
+        { label: "You", value: Number(price) }
       ],
       schools,
       crime,
-      enhancedImageUrl,
+      enhancedImageUrl
     });
+
   } catch (err) {
     console.error("❌ AI error:", err);
     res.status(500).json({ error: "OpenAI request failed." });
