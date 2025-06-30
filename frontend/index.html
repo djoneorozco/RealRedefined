@@ -112,7 +112,7 @@
     }
 
     .feeling-images img {
-      width: 240px;  /* doubled size */
+      width: 240px;
       height: auto;
       border-radius: 12px;
       cursor: pointer;
@@ -192,6 +192,13 @@
       font-size: 0.85rem;
       color: #8892b0;
     }
+
+    /* Added style for goodbyeVideo */
+    #goodbyeVideo {
+      width: 100%;
+      border-radius: 12px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -201,10 +208,18 @@
       <p>Modern. Sassy. Data-driven Real Estate Insights.</p>
       <p>Discover smarter ways to refine your listings and stay ahead of the curve.</p>
       <div class="branding">Part of the <strong>RealtySass</strong> family.</div>
+
       <video id="followUpVideo" controls style="display: none;">
         <source src="static/images/real2.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+
+      <!-- NEW goodbye.mp4 video -->
+      <video id="goodbyeVideo" controls style="display: none;">
+        <source src="static/images/goodbye.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
       <audio id="feelingsAudio" src="static/images/feelings.mp3"></audio>
     </div>
 
@@ -258,6 +273,7 @@
     const avatarImage = document.getElementById('avatarImage');
     const introVideo = document.getElementById('introVideo');
     const followUpVideo = document.getElementById('followUpVideo');
+    const goodbyeVideo = document.getElementById('goodbyeVideo');
     const feelingsAudio = document.getElementById('feelingsAudio');
     const feelingOptions = document.getElementById('feelingOptions');
     const quizForm = document.getElementById('quizForm');
@@ -285,7 +301,6 @@
       };
     });
 
-    // You can hook up clicks on feeling images to move to the quizForm
     document.querySelectorAll('.feeling-images img').forEach(img => {
       img.addEventListener('click', () => {
         feelingOptions.style.display = 'none';
@@ -297,6 +312,9 @@
     const zipEl = document.getElementById('zip');
     const priceEl = document.getElementById('price');
     const promptEl = document.getElementById('prompt');
+    const chartContainer = document.getElementById('chartContainer');
+
+    let chart;
 
     document.getElementById('btn-test').onclick = async () => {
       resultEl.textContent = '⏳ Testing…';
@@ -308,8 +326,6 @@
         resultEl.textContent = 'Test failed: ' + e;
       }
     };
-
-    let chart;
 
     document.getElementById('btn-ask').onclick = async () => {
       const zip = zipEl.value.trim();
@@ -323,46 +339,55 @@
       resultEl.textContent = '⏳ Asking AI…';
       if (chart) chart.destroy();
 
-      try {
-        const res = await fetch('/api/ask', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ zip, prompt, price })
-        });
-        const json = await res.json();
-        if (json.error) throw new Error(json.error);
+      chartContainer.style.display = 'none';
+      goodbyeVideo.style.display = 'block';
+      goodbyeVideo.play();
 
-        resultEl.textContent = json.answer;
+      goodbyeVideo.onended = async () => {
+        goodbyeVideo.style.display = 'none';
+        chartContainer.style.display = 'block';
 
-        const medianValue = json.prices?.[0]?.value || 0;
-        const offeredValue = json.prices?.[1]?.value || 0;
+        try {
+          const res = await fetch('/api/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ zip, prompt, price })
+          });
+          const json = await res.json();
+          if (json.error) throw new Error(json.error);
 
-        const ctx = document.getElementById('priceChart');
-        chart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['Median Price', 'Your Price'],
-            datasets: [{
-              label: 'Sale Price Comparison',
-              data: [medianValue, offeredValue],
-              backgroundColor: ['#36A2EB', '#FF6384'],
-              borderRadius: 5
-            }]
-          },
-          options: {
-            animation: {
-              duration: 1200,
-              easing: 'easeOutBounce'
+          resultEl.textContent = json.answer;
+
+          const medianValue = json.prices?.[0]?.value || 0;
+          const offeredValue = json.prices?.[1]?.value || 0;
+
+          const ctx = document.getElementById('priceChart');
+          chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['Median Price', 'Your Price'],
+              datasets: [{
+                label: 'Sale Price Comparison',
+                data: [medianValue, offeredValue],
+                backgroundColor: ['#36A2EB', '#FF6384'],
+                borderRadius: 5
+              }]
             },
-            scales: {
-              y: { beginAtZero: true }
+            options: {
+              animation: {
+                duration: 1200,
+                easing: 'easeOutBounce'
+              },
+              scales: {
+                y: { beginAtZero: true }
+              }
             }
-          }
-        });
+          });
 
-      } catch (err) {
-        resultEl.textContent = 'Request failed: ' + err.message;
-      }
+        } catch (err) {
+          resultEl.textContent = 'Request failed: ' + err.message;
+        }
+      };
     };
   </script>
 </body>
