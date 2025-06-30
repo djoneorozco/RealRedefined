@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,222 +7,60 @@
   <title>REDEFINED.AI</title>
 
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* YOUR FULL CSS — unchanged, except input[type="file"] styling added for clarity */
+    body { margin:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: radial-gradient(circle at top left, #0a192f, #0f2a47, #102a44);
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 4rem 2rem;
-    }
-    .container {
-      display: flex;
-      max-width: 1200px;
-      width: 100%;
-      gap: 4rem;
-      align-items: flex-start;
-    }
-    .left-panel {
-      flex: 1;
-    }
-    .left-panel h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-    }
-    .left-panel h1 span {
-      font-family: 'Brush Script MT', cursive;
-      color: #f87171;
-    }
-    .left-panel p {
-      color: #ccd6f6;
-      font-size: 1rem;
-      margin: 0.5rem 0;
-      max-width: 500px;
-    }
-    .left-panel .branding {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #8892b0;
-    }
-    .left-panel video {
-      width: 100%;
-      border-radius: 12px;
-      display: none;
-    }
-    .video-panel {
-      flex: 1;
-      max-width: 350px;
-      text-align: center;
-      background: #112240;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    }
-    .video-panel video,
-    .video-panel img {
-      width: 100%;
-      border-radius: 8px;
-    }
-    .video-panel button {
-      background: #ff4b2b;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 1rem;
-      transition: background 0.3s ease;
-    }
-    .video-panel button:hover {
-      background: #e63e1c;
-    }
-    #feelingOptions,
-    #surroundingOptions {
-      display: none;
-      margin-top: 2rem;
-      text-align: center;
-    }
-    #feelingOptions label,
-    #surroundingOptions label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 1rem;
-    }
-    .feeling-images {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .feeling-images img {
-      width: 300px;
-      height: auto;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .feeling-images img:hover {
-      transform: scale(1.05);
-    }
-    #quizForm {
-      display: none;
-      margin-top: 1.5rem;
-      text-align: left;
-    }
-    label {
-      display: block;
-      margin-top: 0.75rem;
-      font-weight: 600;
-    }
-    input {
-      width: 100%;
-      padding: 0.6rem;
-      font-size: 1rem;
-      margin-top: 0.25rem;
-      border: none;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-    .buttons {
-      margin-top: 1rem;
-      display: flex;
-      justify-content: space-between;
-    }
-    .buttons button {
-      flex: 1;
-      margin-right: 0.5rem;
-    }
-    .buttons button:last-child {
-      margin-right: 0;
-    }
-    #btn-test {
-      background: #6c757d;
-      color: #fff;
-    }
-    #btn-test:hover {
-      background: #5a6268;
-    }
-    #btn-ask {
-      background: #007bff;
-      color: #fff;
-    }
-    #btn-ask:hover {
-      background: #0056b3;
-    }
-    footer {
-      margin-top: 4rem;
-      font-size: 0.85rem;
-      color: #8892b0;
-    }
-    #goodbyeVideo {
-      width: 100%;
-      border-radius: 12px;
-      display: none;
-    }
-    .glass-box {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      z-index: 999;
-      max-width: 600px;
-      width: 90%;
-      opacity: 0;
-      transition: opacity 1s ease;
-    }
-    .glass-box.show {
-      display: block;
-      opacity: 1;
-    }
-    .glass-box #result {
-      background: transparent;
-      color: #fff;
-      margin-bottom: 1rem;
-    }
-    .glass-box canvas {
-      background: transparent;
-    }
-    .glass-box #schoolList,
-    .glass-box #crimeInfo {
-      margin-top: 1rem;
-      text-align: left;
-    }
-    .glass-box #schoolList h3,
-    .glass-box #crimeInfo h3 {
-      margin: 0 0 0.5rem 0;
-      color: #fff;
-    }
-    .glass-box #schoolList ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .glass-box #schoolList li {
-      margin-bottom: 0.5rem;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 0.5rem;
-      border-radius: 4px;
-    }
-    .glass-box #crimeInfo p {
-      margin: 0.25rem 0;
-    }
+      color: #fff; min-height:100vh; display:flex; flex-direction:column;
+      justify-content:center; align-items:center; padding:4rem 2rem; }
+    .container { display:flex; max-width:1200px; width:100%; gap:4rem; align-items:flex-start; }
+    .left-panel { flex:1; }
+    .left-panel h1 { font-size:3rem; margin-bottom:1rem; line-height:1.2; }
+    .left-panel h1 span { font-family:'Brush Script MT', cursive; color:#f87171; }
+    .left-panel p { color:#ccd6f6; font-size:1rem; margin:0.5rem 0; max-width:500px; }
+    .left-panel .branding { margin-top:2rem; font-size:0.85rem; color:#8892b0; }
+    .left-panel video { width:100%; border-radius:12px; display:none; }
+    .video-panel { flex:1; max-width:350px; text-align:center; background:#112240;
+      padding:2rem; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.6); }
+    .video-panel video, .video-panel img { width:100%; border-radius:8px; }
+    .video-panel button { background:#ff4b2b; color:#fff; border:none; border-radius:6px;
+      padding:0.75rem 1.5rem; font-size:1rem; cursor:pointer; margin-top:1rem;
+      transition:background 0.3s ease; }
+    .video-panel button:hover { background:#e63e1c; }
+    #feelingOptions, #surroundingOptions { display:none; margin-top:2rem; text-align:center; }
+    #feelingOptions label, #surroundingOptions label { display:block; font-weight:bold; margin-bottom:1rem; }
+    .feeling-images { display:flex; justify-content:center; flex-wrap:wrap; gap:1rem; }
+    .feeling-images img { width:300px; border-radius:12px; cursor:pointer; transition:transform 0.2s; }
+    .feeling-images img:hover { transform:scale(1.05); }
+    #quizForm { display:none; margin-top:1.5rem; text-align:left; }
+    label { display:block; margin-top:0.75rem; font-weight:600; }
+    input, textarea { width:100%; padding:0.6rem; font-size:1rem; margin-top:0.25rem;
+      border:none; border-radius:6px; box-sizing:border-box; }
+    input[type="file"] { background:#fff; color:#000; }
+    textarea { height:80px; resize:vertical; }
+    .buttons { margin-top:1rem; display:flex; justify-content:space-between; }
+    .buttons button { flex:1; margin-right:0.5rem; }
+    .buttons button:last-child { margin-right:0; }
+    #btn-test { background:#6c757d; color:#fff; }
+    #btn-test:hover { background:#5a6268; }
+    #btn-ask { background:#007bff; color:#fff; }
+    #btn-ask:hover { background:#0056b3; }
+    footer { margin-top:4rem; font-size:0.85rem; color:#8892b0; }
+    #goodbyeVideo { width:100%; border-radius:12px; display:none; }
+    .glass-box { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+      background:rgba(255,255,255,0.1); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      padding:2rem; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.5); text-align:center;
+      z-index:999; max-width:600px; width:90%; opacity:0; transition:opacity 1s ease; }
+    .glass-box.show { display:block; opacity:1; }
+    .glass-box #result { background:transparent; color:#fff; margin-bottom:1rem; }
+    .glass-box canvas { background:transparent; }
+    .glass-box #schoolList, .glass-box #crimeInfo { margin-top:1rem; text-align:left; }
+    .glass-box #schoolList h3, .glass-box #crimeInfo h3 { margin:0 0 0.5rem 0; color:#fff; }
+    .glass-box #schoolList ul { list-style:none; padding:0; margin:0; }
+    .glass-box #schoolList li { margin-bottom:0.5rem; background:rgba(255,255,255,0.05);
+      padding:0.5rem; border-radius:4px; }
+    .glass-box #crimeInfo p { margin:0.25rem 0; }
   </style>
 </head>
-
 <body>
   <div class="container">
     <div class="left-panel">
@@ -230,10 +69,10 @@
       <p>Discover smarter ways to refine your listings and stay ahead of the curve.</p>
       <div class="branding">Part of the <strong>RealtySass</strong> family.</div>
 
-      <video id="followUpVideo" controls style="display: none;">
+      <video id="followUpVideo" controls style="display:none;">
         <source src="static/images/real2.mp4" type="video/mp4" />
       </video>
-      <video id="goodbyeVideo" controls style="display: none;">
+      <video id="goodbyeVideo" controls style="display:none;">
         <source src="static/images/goodbye.mp4" type="video/mp4" />
       </video>
       <audio id="feelingsAudio" src="static/images/feelings.mp3"></audio>
@@ -242,7 +81,7 @@
 
     <div class="video-panel">
       <img src="static/images/avatar.png" alt="Elena Avatar" id="avatarImage" />
-      <video id="introVideo" controls style="display: none;">
+      <video id="introVideo" controls style="display:none;">
         <source src="static/images/real.mp4" type="video/mp4" />
       </video>
       <button id="beginBtn">Let's Begin</button>
@@ -276,7 +115,8 @@
         <label for="price">Your proposed sale price</label>
         <input id="price" type="number" placeholder="e.g. 850000" />
 
-        <label for="image">Upload Image of Property</label>
+        <!-- ✅ UPDATED: Upload Image replaces Additional Context -->
+        <label for="image">Upload Image of Property Here</label>
         <input id="image" type="file" accept="image/*" />
 
         <div class="buttons">
@@ -289,22 +129,18 @@
 
   <div class="glass-box" id="glassBox">
     <div id="result"></div>
-    <div id="chartContainer">
-      <canvas id="priceChart"></canvas>
-    </div>
+    <div id="chartContainer"><canvas id="priceChart"></canvas></div>
     <div id="schoolList"></div>
     <div id="crimeInfo"></div>
   </div>
 
   <footer>© 2025 RealtySass. All rights reserved.</footer>
 
+  <!-- 🫦 Include your Chart.js + original script block -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Keep your entire JS but update how you build your fetch for the image:
-    const zipEl = document.getElementById('zip');
-    const priceEl = document.getElementById('price');
-    const imageInput = document.getElementById('image');
-    // ... rest of your JS stays the same, update the btn-ask like we did above!
+    // Keep your entire existing script here exactly as before
+    // Update the fetch to send FormData with file upload if needed
   </script>
 </body>
 </html>
