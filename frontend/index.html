@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>REDEFINED.AI</title>
+
   <style>
     body {
       margin: 0;
@@ -92,13 +95,15 @@
       background: #e63e1c;
     }
 
-    #feelingOptions {
+    #feelingOptions,
+    #surroundingOptions {
       display: none;
       margin-top: 2rem;
       text-align: center;
     }
 
-    #feelingOptions label {
+    #feelingOptions label,
+    #surroundingOptions label {
       display: block;
       font-weight: bold;
       margin-bottom: 1rem;
@@ -135,7 +140,8 @@
       font-weight: 600;
     }
 
-    input, textarea {
+    input,
+    textarea {
       width: 100%;
       padding: 0.6rem;
       font-size: 1rem;
@@ -145,7 +151,10 @@
       box-sizing: border-box;
     }
 
-    textarea { height: 80px; resize: vertical; }
+    textarea {
+      height: 80px;
+      resize: vertical;
+    }
 
     .buttons {
       margin-top: 1rem;
@@ -158,19 +167,27 @@
       margin-right: 0.5rem;
     }
 
-    .buttons button:last-child { margin-right: 0; }
+    .buttons button:last-child {
+      margin-right: 0;
+    }
 
     #btn-test {
       background: #6c757d;
       color: #fff;
     }
-    #btn-test:hover { background: #5a6268; }
+
+    #btn-test:hover {
+      background: #5a6268;
+    }
 
     #btn-ask {
       background: #007bff;
       color: #fff;
     }
-    #btn-ask:hover { background: #0056b3; }
+
+    #btn-ask:hover {
+      background: #0056b3;
+    }
 
     #result {
       margin-top: 1rem;
@@ -210,7 +227,7 @@
       -webkit-backdrop-filter: blur(12px);
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
       text-align: center;
       z-index: 999;
       max-width: 500px;
@@ -235,8 +252,11 @@
     }
   </style>
 </head>
+
 <body>
+
   <div class="container">
+
     <div class="left-panel">
       <h1 id="headline">The Smartest Way to <span>Refine</span> Listings</h1>
       <p>Modern. Sassy. Data-driven Real Estate Insights.</p>
@@ -256,13 +276,26 @@
 
     <div class="video-panel">
       <img src="static/images/avatar.png" alt="Elena Avatar" id="avatarImage" />
+
       <video id="introVideo" controls style="display: none;">
         <source src="static/images/real.mp4" type="video/mp4" />
       </video>
+
       <button id="beginBtn">Let's Begin</button>
 
       <div id="feelingOptions">
         <label>What type of Feeling does your Property Invoke?</label>
+        <div class="feeling-images">
+          <img src="static/images/active-family.jpg" alt="Active Family" />
+          <img src="static/images/entertainment.jpg" alt="Entertainment" />
+          <img src="static/images/relaxation.jpg" alt="Relaxation" />
+          <img src="static/images/retirement.jpg" alt="Retirement" />
+          <img src="static/images/wfh.jpg" alt="Work From Home" />
+        </div>
+      </div>
+
+      <div id="surroundingOptions">
+        <label>Which Image best describes property surrounding area?</label>
         <div class="feeling-images">
           <img src="static/images/active-family.jpg" alt="Active Family" />
           <img src="static/images/entertainment.jpg" alt="Entertainment" />
@@ -287,7 +320,9 @@
           <button id="btn-ask">Ask AI</button>
         </div>
       </div>
+
     </div>
+
   </div>
 
   <div class="glass-box" id="glassBox">
@@ -308,6 +343,7 @@
     const goodbyeVideo = document.getElementById('goodbyeVideo');
     const feelingsAudio = document.getElementById('feelingsAudio');
     const feelingOptions = document.getElementById('feelingOptions');
+    const surroundingOptions = document.getElementById('surroundingOptions');
     const quizForm = document.getElementById('quizForm');
     const headline = document.getElementById('headline');
 
@@ -333,9 +369,18 @@
       };
     });
 
-    document.querySelectorAll('.feeling-images img').forEach(img => {
+    document.querySelectorAll('#feelingOptions .feeling-images img').forEach(img => {
       img.addEventListener('click', () => {
+        feelingsAudio.play();
         feelingOptions.style.display = 'none';
+        surroundingOptions.style.display = 'block';
+      });
+    });
+
+    document.querySelectorAll('#surroundingOptions .feeling-images img').forEach(img => {
+      img.addEventListener('click', () => {
+        feelingsAudio.play();
+        surroundingOptions.style.display = 'none';
         quizForm.style.display = 'block';
       });
     });
@@ -400,7 +445,9 @@
                 duration: 1200,
                 easing: 'easeOutBounce'
               },
-              scales: { y: { beginAtZero: true } }
+              scales: {
+                y: { beginAtZero: true }
+              }
             }
           });
 
@@ -415,4 +462,5 @@
     };
   </script>
 </body>
-</ht
+
+</html>
