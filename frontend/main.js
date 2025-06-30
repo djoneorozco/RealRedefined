@@ -1,4 +1,3 @@
-
 // ELEMENT SELECTORS
 const beginBtn = document.getElementById('beginBtn');
 const avatarImage = document.getElementById('avatarImage');
@@ -66,9 +65,10 @@ document.querySelectorAll('#surroundingOptions .feeling-images img').forEach(img
 document.getElementById('btn-ask').onclick = async () => {
   const zip = zipEl.value.trim();
   const price = priceEl.value.trim();
-  const prompt = promptEl.value.trim();
-  if (!zip || !price || !prompt) {
-    resultEl.textContent = 'Please fill out all three fields.';
+  const promptFile = promptEl.files[0];
+
+  if (!zip || !price || !promptFile) {
+    resultEl.textContent = 'Please fill out all fields and upload an image.';
     glassBox.classList.add('show');
     return;
   }
@@ -76,10 +76,14 @@ document.getElementById('btn-ask').onclick = async () => {
   resultEl.textContent = '⏳ Asking AI…';
   glassBox.classList.remove('show');
 
+  const formData = new FormData();
+  formData.append('zip', zip);
+  formData.append('price', price);
+  formData.append('image', promptFile);
+
   const request = fetch('/api/ask', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ zip, prompt, price })
+    body: formData
   }).then(res => res.json());
 
   chartContainer.style.display = 'none';
