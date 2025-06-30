@@ -6,7 +6,7 @@
   <title>REDEFINED.AI</title>
 
   <style>
-    /* --- Your existing CSS --- */
+    /* 🎨 Your existing styles — unchanged */
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -320,8 +320,9 @@
         <label for="price">Your proposed sale price</label>
         <input id="price" type="number" placeholder="e.g. 850000" />
 
-        <label for="prompt">Additional context or question</label>
-        <textarea id="prompt" placeholder="e.g. Selling to a family? Any other notes…"></textarea>
+        <!-- ✅ NEW Upload Input -->
+        <label for="imageUpload">Upload Property Image</label>
+        <input id="imageUpload" type="file" accept="image/*" />
 
         <div class="buttons">
           <button id="btn-test">Test Backend</button>
@@ -340,7 +341,8 @@
 
   <footer>© 2025 RealtySass. All rights reserved.</footer>
 
+  <!-- Chart.js and your main.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="main.js" defer></script>
+  <script src="main.js"></script>
 </body>
 </html>
