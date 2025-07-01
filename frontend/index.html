@@ -6,6 +6,7 @@
   <title>REDEFINED.AI</title>
 
   <style>
+    /* //#1 Global Styles */
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -87,6 +88,7 @@
       background: #e63e1c;
     }
 
+    /* //#2 Options & Quiz */
     #feelingOptions,
     #surroundingOptions {
       display: none;
@@ -182,6 +184,7 @@
       color: #8892b0;
     }
 
+    /* //#3 Glass Box */
     .glass-box {
       display: none;
       position: fixed;
@@ -247,7 +250,7 @@
 <body>
   <div class="container">
     <div class="left-panel">
-      <h1>The Smartest Way to <span>Refine</span> Listings</h1>
+      <h1 id="headline">The Smartest Way to <span>Refine</span> Listings</h1>
       <p>Modern. Sassy. Data-driven Real Estate Insights.</p>
       <p>Discover smarter ways to refine your listings and stay ahead of the curve.</p>
       <div class="branding">Part of the <strong>RealtySass</strong> family.</div>
@@ -269,6 +272,7 @@
       </video>
       <button id="beginBtn">Let's Begin</button>
 
+      <!-- //#4 Feeling Options -->
       <div id="feelingOptions">
         <label>What type of Feeling does your Property Invoke?</label>
         <div class="feeling-images">
@@ -280,6 +284,7 @@
         </div>
       </div>
 
+      <!-- //#5 Surrounding Options -->
       <div id="surroundingOptions">
         <label>Which Image best describes property surrounding area?</label>
         <div class="feeling-images">
@@ -291,6 +296,7 @@
         </div>
       </div>
 
+      <!-- //#6 Quiz Form -->
       <div id="quizForm">
         <label for="zip">Area / ZIP code</label>
         <input id="zip" type="text" placeholder="e.g. 78046" />
@@ -309,6 +315,7 @@
     </div>
   </div>
 
+  <!-- //#7 Glass Box -->
   <div class="glass-box" id="glassBox">
     <div id="result"></div>
     <div id="chartContainer" style="display: none;"><canvas id="priceChart"></canvas></div>
@@ -318,6 +325,7 @@
 
   <footer>© 2025 RealtySass. All rights reserved.</footer>
 
+  <!-- //#8 Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="main.js"></script>
 </body>
