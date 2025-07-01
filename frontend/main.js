@@ -79,24 +79,29 @@ document.getElementById('btn-ask').onclick = async () => {
   const formData = new FormData();
   formData.append('zip', zip);
   formData.append('price', price);
-  formData.append('image', promptFile);
+  formData.append('file', promptFile); // Ensure the backend expects 'file'
 
-  const request = fetch('/api/ask', {
-    method: 'POST',
-    body: formData
-  }).then(res => res.json());
+  console.log('Sending FormData:', zip, price, promptFile);
 
-  chartContainer.style.display = 'none';
-  schoolListEl.innerHTML = '';
-  crimeInfoEl.innerHTML = '';
-  goodbyeVideo.style.display = 'block';
-  goodbyeVideo.play();
+  try {
+    const res = await fetch('/api/ask', {
+      method: 'POST',
+      body: formData
+    });
+    const json = await res.json();
 
-  goodbyeVideo.onended = async () => {
-    goodbyeVideo.style.display = 'none';
-    try {
-      const json = await request;
-      if (json.error) throw new Error(json.error);
+    chartContainer.style.display = 'none';
+    schoolListEl.innerHTML = '';
+    crimeInfoEl.innerHTML = '';
+    goodbyeVideo.style.display = 'block';
+    goodbyeVideo.play();
+
+    goodbyeVideo.onended = () => {
+      goodbyeVideo.style.display = 'none';
+
+      if (json.error) {
+        throw new Error(json.error);
+      }
 
       resultEl.textContent = json.answer;
 
@@ -148,10 +153,11 @@ document.getElementById('btn-ask').onclick = async () => {
       }
 
       glassBox.classList.add('show');
+    };
 
-    } catch (err) {
-      resultEl.textContent = 'Request failed: ' + err.message;
-      glassBox.classList.add('show');
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    resultEl.textContent = 'Request failed: ' + err.message;
+    glassBox.classList.add('show');
+  }
 };
