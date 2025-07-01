@@ -1,4 +1,33 @@
 // Ask AI button
+const beginBtn = document.getElementById('beginBtn');
+const avatarImage = document.getElementById('avatarImage');
+const introVideo = document.getElementById('introVideo');
+const headline = document.getElementById('headline');
+const followUpVideo = document.getElementById('followUpVideo');
+const feelingsAudio = document.getElementById('feelingsAudio');
+const feelingOptions = document.getElementById('feelingOptions');
+
+beginBtn.addEventListener('click', () => {
+  avatarImage.style.display = 'none';
+  beginBtn.style.display = 'none';
+  introVideo.style.display = 'block';
+  introVideo.play();
+});
+
+introVideo.onended = () => {
+  introVideo.style.display = 'none';
+  headline.style.display = 'none';
+  document.querySelectorAll('.left-panel p, .branding').forEach(el => el.style.display = 'none');
+  followUpVideo.style.display = 'block';
+  followUpVideo.play();
+};
+
+followUpVideo.onended = () => {
+  followUpVideo.style.display = 'none';
+  feelingsAudio.play();
+  feelingOptions.style.display = 'block';
+};
+
 document.getElementById('btn-ask').onclick = async () => {
   const zip = zipEl.value.trim();
   const price = priceEl.value.trim();
