@@ -10,6 +10,16 @@ const surroundingOptions = document.getElementById('surroundingOptions');
 const surroundingAudio = document.getElementById('surroundingAudio');
 const quizForm = document.getElementById('quizForm');
 
+// Additional element selectors
+const zipEl = document.getElementById('zip');
+const priceEl = document.getElementById('price');
+const promptEl = document.getElementById('prompt');
+const resultEl = document.getElementById('result');
+const glassBox = document.getElementById('glassBox');
+const chartContainer = document.getElementById('chartContainer');
+const schoolListEl = document.getElementById('schoolList');
+const crimeInfoEl = document.getElementById('crimeInfo');
+
 beginBtn.addEventListener('click', () => {
   avatarImage.style.display = 'none';
   beginBtn.style.display = 'none';
