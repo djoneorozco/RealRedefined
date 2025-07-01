@@ -6,7 +6,6 @@
   <title>REDEFINED.AI</title>
 
   <style>
-    /* 🎨 Your existing styles — unchanged */
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -56,12 +55,6 @@
       color: #8892b0;
     }
 
-    .left-panel video {
-      width: 100%;
-      border-radius: 12px;
-      display: none;
-    }
-
     .video-panel {
       flex: 1;
       max-width: 350px;
@@ -72,8 +65,12 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     }
 
-    .video-panel video,
     .video-panel img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .video-panel video {
       width: 100%;
       border-radius: 8px;
     }
@@ -139,8 +136,7 @@
       font-weight: 600;
     }
 
-    input,
-    textarea {
+    input {
       width: 100%;
       padding: 0.6rem;
       font-size: 1rem;
@@ -148,11 +144,6 @@
       border: none;
       border-radius: 6px;
       box-sizing: border-box;
-    }
-
-    textarea {
-      height: 80px;
-      resize: vertical;
     }
 
     .buttons {
@@ -192,12 +183,6 @@
       margin-top: 4rem;
       font-size: 0.85rem;
       color: #8892b0;
-    }
-
-    #goodbyeVideo {
-      width: 100%;
-      border-radius: 12px;
-      display: none;
     }
 
     .glass-box {
@@ -265,84 +250,7 @@
     }
   </style>
 </head>
-
 <body>
   <div class="container">
     <div class="left-panel">
-      <h1 id="headline">The Smartest Way to <span>Refine</span> Listings</h1>
-      <p>Modern. Sassy. Data-driven Real Estate Insights.</p>
-      <p>Discover smarter ways to refine your listings and stay ahead of the curve.</p>
-      <div class="branding">Part of the <strong>RealtySass</strong> family.</div>
-
-      <video id="followUpVideo" controls style="display: none;">
-        <source src="static/images/real2.mp4" type="video/mp4" />
-      </video>
-      <video id="goodbyeVideo" controls style="display: none;">
-        <source src="static/images/goodbye.mp4" type="video/mp4" />
-      </video>
-      <audio id="feelingsAudio" src="static/images/feelings.mp3"></audio>
-      <audio id="surroundingAudio" src="static/images/surrounding.mp3"></audio>
-    </div>
-
-    <div class="video-panel">
-      <img src="static/images/avatar.png" alt="Elena Avatar" id="avatarImage" />
-      <video id="introVideo" controls style="display: none;">
-        <source src="static/images/real.mp4" type="video/mp4" />
-      </video>
-      <button id="beginBtn">Let's Begin</button>
-
-      <div id="feelingOptions">
-        <label>What type of Feeling does your Property Invoke?</label>
-        <div class="feeling-images">
-          <img src="static/images/active-family.jpg" alt="Active Family" />
-          <img src="static/images/entertainment.jpg" alt="Entertainment" />
-          <img src="static/images/relaxation.jpg" alt="Relaxation" />
-          <img src="static/images/retirement.jpg" alt="Retirement" />
-          <img src="static/images/wfh.jpg" alt="Work From Home" />
-        </div>
-      </div>
-
-      <div id="surroundingOptions">
-        <label>Which Image best describes property surrounding area?</label>
-        <div class="feeling-images">
-          <img src="static/images/active-family.jpg" alt="Active Family" />
-          <img src="static/images/entertainment.jpg" alt="Entertainment" />
-          <img src="static/images/relaxation.jpg" alt="Relaxation" />
-          <img src="static/images/retirement.jpg" alt="Retirement" />
-          <img src="static/images/wfh.jpg" alt="Work From Home" />
-        </div>
-      </div>
-
-      <div id="quizForm">
-        <label for="zip">Area / ZIP code</label>
-        <input id="zip" type="text" placeholder="e.g. 78046" />
-
-        <label for="price">Your proposed sale price</label>
-        <input id="price" type="number" placeholder="e.g. 850000" />
-
-        <!-- ✅ NEW Upload Input -->
-        <label for="prompt">Upload Property Image</label>
-        <input id="prompt" type="file" accept="image/*" placeholder="" />
-
-        <div class="buttons">
-          <button id="btn-test">Test Backend</button>
-          <button id="btn-ask">Ask AI</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="glass-box" id="glassBox">
-    <div id="result"></div>
-    <div id="chartContainer" style="display: none;"><canvas id="priceChart"></canvas></div>
-    <div id="schoolList"></div>
-    <div id="crimeInfo"></div>
-  </div>
-
-  <footer>© 2025 RealtySass. All rights reserved.</footer>
-
-  <!-- Chart.js and your main.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="main.js"></script>
-</body>
-</html>
+      <h1 id="headline">The Smartest Way to <span>Refine</span> Listings</n

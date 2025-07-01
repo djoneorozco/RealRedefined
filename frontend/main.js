@@ -1,25 +1,25 @@
-// Ask AI button
+// ELEMENT SELECTORS
 const beginBtn = document.getElementById('beginBtn');
 const avatarImage = document.getElementById('avatarImage');
 const introVideo = document.getElementById('introVideo');
-const headline = document.getElementById('headline');
 const followUpVideo = document.getElementById('followUpVideo');
+const goodbyeVideo = document.getElementById('goodbyeVideo');
 const feelingsAudio = document.getElementById('feelingsAudio');
+const surroundingAudio = document.getElementById('surroundingAudio');
 const feelingOptions = document.getElementById('feelingOptions');
 const surroundingOptions = document.getElementById('surroundingOptions');
-const surroundingAudio = document.getElementById('surroundingAudio');
 const quizForm = document.getElementById('quizForm');
-
-// Additional element selectors
-const zipEl = document.getElementById('zip');
-const priceEl = document.getElementById('price');
-const promptEl = document.getElementById('prompt');
-const resultEl = document.getElementById('result');
+const headline = document.getElementById('headline');
 const glassBox = document.getElementById('glassBox');
-const chartContainer = document.getElementById('chartContainer');
+const resultEl = document.getElementById('result');
 const schoolListEl = document.getElementById('schoolList');
 const crimeInfoEl = document.getElementById('crimeInfo');
+const zipEl = document.getElementById('zip');
+const priceEl = document.getElementById('price');
+const chartContainer = document.getElementById('chartContainer');
+let chart;
 
+// LET'S BEGIN button
 beginBtn.addEventListener('click', () => {
   avatarImage.style.display = 'none';
   beginBtn.style.display = 'none';
@@ -27,6 +27,7 @@ beginBtn.addEventListener('click', () => {
   introVideo.play();
 });
 
+// When intro video ends, play follow up video
 introVideo.onended = () => {
   introVideo.style.display = 'none';
   headline.style.display = 'none';
@@ -41,55 +42,59 @@ followUpVideo.onended = () => {
   feelingOptions.style.display = 'block';
 };
 
+// Feeling options
+document.querySelectorAll('#feelingOptions .feeling-images img').forEach(img => {
+  img.addEventListener('click', () => {
+    surroundingAudio.play();
+    feelingOptions.style.display = 'none';
+    surroundingOptions.style.display = 'block';
+  });
+});
+
+// Surrounding options
+document.querySelectorAll('#surroundingOptions .feeling-images img').forEach(img => {
+  img.addEventListener('click', () => {
+    feelingsAudio.play();
+    surroundingOptions.style.display = 'none';
+    quizForm.style.display = 'block';
+  });
+});
+
+// Ask AI button - JSON only (no file)
 document.getElementById('btn-ask').onclick = async () => {
   const zip = zipEl.value.trim();
   const price = priceEl.value.trim();
-  const promptFile = promptEl.files[0];
+  const prompt = "N/A"; // no custom prompt for now
 
-  if (!zip || !price || !promptFile) {
-    resultEl.textContent = 'Please fill out all fields and upload an image.';
+  if (!zip || !price) {
+    resultEl.textContent = 'Please fill out all fields.';
     glassBox.classList.add('show');
     return;
   }
 
+  console.log(`Sending: ${zip} ${price}`);
+
   resultEl.textContent = '⏳ Asking AI…';
   glassBox.classList.remove('show');
 
-  const formData = new FormData();
-  formData.append('zip', zip);
-  formData.append('price', price);
-  formData.append('file', promptFile);
+  const request = fetch('/api/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ zip, price, prompt })
+  }).then(res => res.json());
 
-  console.log('Sending FormData:', zip, price, promptFile);
+  chartContainer.style.display = 'none';
+  schoolListEl.innerHTML = '';
+  crimeInfoEl.innerHTML = '';
 
-  try {
-    const res = await fetch('/api/ask', {
-      method: 'POST',
-      body: formData
-    });
+  goodbyeVideo.style.display = 'block';
+  goodbyeVideo.play();
 
-    const text = await res.text();
-    console.log('Raw response:', text);
-
-    let json;
+  goodbyeVideo.onended = async () => {
+    goodbyeVideo.style.display = 'none';
     try {
-      json = JSON.parse(text);
-    } catch {
-      throw new Error('Server did not return valid JSON: ' + text);
-    }
-
-    chartContainer.style.display = 'none';
-    schoolListEl.innerHTML = '';
-    crimeInfoEl.innerHTML = '';
-    goodbyeVideo.style.display = 'block';
-    goodbyeVideo.play();
-
-    goodbyeVideo.onended = () => {
-      goodbyeVideo.style.display = 'none';
-
-      if (json.error) {
-        throw new Error(json.error);
-      }
+      const json = await request;
+      if (json.error) throw new Error(json.error);
 
       resultEl.textContent = json.answer;
 
@@ -141,29 +146,10 @@ document.getElementById('btn-ask').onclick = async () => {
       }
 
       glassBox.classList.add('show');
-    };
 
-  } catch (err) {
-    console.error(err);
-    resultEl.textContent = 'Request failed: ' + err.message;
-    glassBox.classList.add('show');
-  }
+    } catch (err) {
+      resultEl.textContent = 'Request failed: ' + err.message;
+      glassBox.classList.add('show');
+    }
+  };
 };
-
-// Feeling option image click
-document.querySelectorAll('#feelingOptions .feeling-images img').forEach(img => {
-  img.addEventListener('click', () => {
-    surroundingAudio.play();
-    feelingOptions.style.display = 'none';
-    surroundingOptions.style.display = 'block';
-  });
-});
-
-// Surrounding option image click
-document.querySelectorAll('#surroundingOptions .feeling-images img').forEach(img => {
-  img.addEventListener('click', () => {
-    feelingsAudio.play();
-    surroundingOptions.style.display = 'none';
-    quizForm.style.display = 'block';
-  });
-});
