@@ -4,253 +4,173 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>REDEFINED.AI</title>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: radial-gradient(circle at top left, #0a192f, #0f2a47, #102a44);
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 4rem 2rem;
-    }
-
-    .container {
-      display: flex;
-      max-width: 1200px;
-      width: 100%;
-      gap: 4rem;
-      align-items: flex-start;
-    }
-
-    .left-panel {
-      flex: 1;
-    }
-
-    .left-panel h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-    }
-
-    .left-panel h1 span {
-      font-family: 'Brush Script MT', cursive;
-      color: #f87171;
-    }
-
-    .left-panel p {
-      color: #ccd6f6;
-      font-size: 1rem;
-      margin: 0.5rem 0;
-      max-width: 500px;
-    }
-
-    .left-panel .branding {
-      margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #8892b0;
-    }
-
-    .video-panel {
-      flex: 1;
-      max-width: 350px;
-      text-align: center;
-      background: #112240;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    }
-
-    .video-panel img {
-      width: 100%;
-      border-radius: 8px;
-    }
-
-    .video-panel video {
-      width: 100%;
-      border-radius: 8px;
-    }
-
-    .video-panel button {
-      background: #ff4b2b;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 1rem;
-      transition: background 0.3s ease;
-    }
-
-    .video-panel button:hover {
-      background: #e63e1c;
-    }
-
-    #feelingOptions,
-    #surroundingOptions {
-      display: none;
-      margin-top: 2rem;
-      text-align: center;
-    }
-
-    #feelingOptions label,
-    #surroundingOptions label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 1rem;
-    }
-
-    .feeling-images {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .feeling-images img {
-      width: 300px;
-      height: auto;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .feeling-images img:hover {
-      transform: scale(1.05);
-    }
-
-    #quizForm {
-      display: none;
-      margin-top: 1.5rem;
-      text-align: left;
-    }
-
-    label {
-      display: block;
-      margin-top: 0.75rem;
-      font-weight: 600;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.6rem;
-      font-size: 1rem;
-      margin-top: 0.25rem;
-      border: none;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-
-    .buttons {
-      margin-top: 1rem;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .buttons button {
-      flex: 1;
-      margin-right: 0.5rem;
-    }
-
-    .buttons button:last-child {
-      margin-right: 0;
-    }
-
-    #btn-test {
-      background: #6c757d;
-      color: #fff;
-    }
-
-    #btn-test:hover {
-      background: #5a6268;
-    }
-
-    #btn-ask {
-      background: #007bff;
-      color: #fff;
-    }
-
-    #btn-ask:hover {
-      background: #0056b3;
-    }
-
-    footer {
-      margin-top: 4rem;
-      font-size: 0.85rem;
-      color: #8892b0;
-    }
-
-    .glass-box {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      z-index: 999;
-      max-width: 600px;
-      width: 90%;
-      opacity: 0;
-      transition: opacity 1s ease;
-    }
-
-    .glass-box.show {
-      display: block;
-      opacity: 1;
-    }
-
-    .glass-box #result {
-      background: transparent;
-      color: #fff;
-      margin-bottom: 1rem;
-    }
-
-    .glass-box canvas {
-      background: transparent;
-    }
-
-    .glass-box #schoolList,
-    .glass-box #crimeInfo {
-      margin-top: 1rem;
-      text-align: left;
-    }
-
-    .glass-box #schoolList h3,
-    .glass-box #crimeInfo h3 {
-      margin: 0 0 0.5rem 0;
-      color: #fff;
-    }
-
-    .glass-box #schoolList ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .glass-box #schoolList li {
-      margin-bottom: 0.5rem;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 0.5rem;
-      border-radius: 4px;
-    }
-
-    .glass-box #crimeInfo p {
-      margin: 0.25rem 0;
-    }
+    body { margin:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:radial-gradient(circle at top left,#0a192f,#0f2a47,#102a44); color:#fff; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:4rem 2rem; }
+    .container { display:flex; max-width:1200px; width:100%; gap:4rem; align-items:flex-start; }
+    .left-panel { flex:1; }
+    .left-panel h1 { font-size:3rem; margin-bottom:1rem; line-height:1.2; }
+    .left-panel h1 span { font-family:'Brush Script MT',cursive; color:#f87171; }
+    .left-panel p { color:#ccd6f6; font-size:1rem; margin:0.5rem 0; max-width:500px; }
+    .branding { margin-top:2rem; font-size:0.85rem; color:#8892b0; }
+    .video-panel { flex:1; max-width:350px; background:#112240; padding:2rem; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.6); text-align:center; }
+    .video-panel img, .video-panel video { width:100%; border-radius:8px; }
+    .video-panel button { margin-top:1rem; padding:0.75rem 1.5rem; font-size:1rem; border:none; border-radius:6px; background:#ff4b2b; color:#fff; cursor:pointer; transition:background 0.3s; }
+    .video-panel button:hover { background:#e63e1c; }
+    #feelingOptions, #surroundingOptions, #quizForm { display:none; margin-top:2rem; text-align:center; }
+    #quizForm { text-align:left; }
+    label { display:block; margin-top:0.75rem; font-weight:600; }
+    input { width:100%; padding:0.6rem; margin-top:0.25rem; font-size:1rem; border:none; border-radius:6px; box-sizing:border-box; }
+    .buttons { display:flex; gap:0.5rem; margin-top:1rem; }
+    .buttons button { flex:1; }
+    .glass-box { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(255,255,255,0.1); backdrop-filter:blur(12px); padding:2rem; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.5); width:90%; max-width:600px; z-index:999; opacity:0; transition:opacity 0.3s ease; }
+    .glass-box.show { display:block; opacity:1; }
+    .glass-box #result { color:#fff; margin-bottom:1rem; }
+    .glass-box canvas { background:transparent; }
+    .glass-box h3 { color:#fff; margin-bottom:0.5rem; }
+    .glass-box ul { list-style:none; padding:0; margin:0; }
+    .glass-box li { margin-bottom:0.5rem; background:rgba(255,255,255,0.05); padding:0.5rem; border-radius:4px; }
+    footer { margin-top:4rem; font-size:0.85rem; color:#8892b0; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="left-panel">
-      <h1 id="headline">The Smartest Way to <span>Refine</span> Listings</n
+      <h1>The Smartest Way to <span>Refine</span> Listings</h1>
+      <p>Modern. Sassy. Data-driven Real Estate Insights.</p>
+      <p>Discover smarter ways to refine your listings and stay ahead of the curve.</p>
+      <div class="branding">Part of the <strong>RealtySass</strong> family.</div>
+    </div>
+    <div class="video-panel">
+      <img src="static/images/avatar.png" alt="Avatar" id="avatarImage" />
+      <video id="introVideo" controls style="display:none;"><source src="static/images/real.mp4" type="video/mp4"></video>
+      <video id="real2Video" controls style="display:none;"><source src="static/images/real2.mp4" type="video/mp4"></video>
+      <video id="goodbyeVideo" controls style="display:none;"><source src="static/images/goodbye.mp4" type="video/mp4"></video>
+      <button id="beginBtn">Let's Begin</button>
+      <div id="feelingOptions">
+        <label>What type of Feeling does your Property Invoke?</label>
+        <div class="feeling-images">
+          <img src="static/images/active-family.jpg" alt="Active Family">
+          <img src="static/images/entertainment.jpg" alt="Entertainment">
+          <img src="static/images/relaxation.jpg" alt="Relaxation">
+          <img src="static/images/retirement.jpg" alt="Retirement">
+          <img src="static/images/wfh.jpg" alt="Work From Home">
+        </div>
+      </div>
+      <div id="surroundingOptions">
+        <label>Which image best describes the surrounding area?</label>
+        <div class="feeling-images">
+          <img src="static/images/active-family.jpg" alt="Active Family">
+          <img src="static/images/entertainment.jpg" alt="Entertainment">
+          <img src="static/images/relaxation.jpg" alt="Relaxation">
+          <img src="static/images/retirement.jpg" alt="Retirement">
+          <img src="static/images/wfh.jpg" alt="Work From Home">
+        </div>
+      </div>
+      <div id="quizForm">
+        <label for="zip">Area / ZIP code</label>
+        <input id="zip" type="text" placeholder="e.g. 78046">
+        <label for="price">Your proposed sale price</label>
+        <input id="price" type="number" placeholder="e.g. 850000">
+        <div class="buttons">
+          <button id="btn-test">Test Backend</button>
+          <button id="btn-ask">Ask AI</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="glass-box" id="glassBox">
+    <div id="result"></div>
+    <div id="chartContainer" style="display:none;"><canvas id="priceChart"></canvas></div>
+    <div id="schoolList"></div>
+    <div id="crimeInfo"></div>
+  </div>
+  <footer>© 2025 RealtySass. All rights reserved.</footer>
+  <script>
+    const avatarImage = document.getElementById('avatarImage');
+    const beginBtn = document.getElementById('beginBtn');
+    const introVideo = document.getElementById('introVideo');
+    const real2Video = document.getElementById('real2Video');
+    const goodbyeVideo = document.getElementById('goodbyeVideo');
+    const feelingOptions = document.getElementById('feelingOptions');
+    const surroundingOptions = document.getElementById('surroundingOptions');
+    const quizForm = document.getElementById('quizForm');
+    const zipInput = document.getElementById('zip');
+    const priceInput = document.getElementById('price');
+    const testBtn = document.getElementById('btn-test');
+    const askBtn = document.getElementById('btn-ask');
+    const glassBox = document.getElementById('glassBox');
+
+    // Start: play intro
+    beginBtn.addEventListener('click', () => {
+      avatarImage.style.display = 'none';
+      beginBtn.style.display = 'none';
+      introVideo.style.display = 'block';
+      introVideo.play();
+      introVideo.onended = () => {
+        introVideo.style.display = 'none';
+        feelingOptions.style.display = 'block';
+      };
+    });
+
+    // Feeling click → play real2
+    feelingOptions.querySelectorAll('img').forEach(img => {
+      img.addEventListener('click', () => {
+        feelingOptions.style.display = 'none';
+        real2Video.style.display = 'block';
+        real2Video.play();
+        real2Video.onended = () => {
+          real2Video.style.display = 'none';
+          surroundingOptions.style.display = 'block';
+        };
+      });
+    });
+
+    // Surrounding click → show quiz
+    surroundingOptions.querySelectorAll('img').forEach(img => {
+      img.addEventListener('click', () => {
+        surroundingOptions.style.display = 'none';
+        quizForm.style.display = 'block';
+      });
+    });
+
+    // Test backend
+    testBtn.addEventListener('click', async () => {
+      const res = await fetch('/api/test');
+      const j = await res.json();
+      alert(JSON.stringify(j));
+    });
+
+    // Ask AI → play goodbye → fetch → render
+    askBtn.addEventListener('click', () => {
+      quizForm.style.display = 'none';
+      goodbyeVideo.style.display = 'block';
+      goodbyeVideo.play();
+      goodbyeVideo.onended = async () => {
+        goodbyeVideo.style.display = 'none';
+        try {
+          const res = await fetch('/api/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ zip: zipInput.value, price: Number(priceInput.value) })
+          });
+          const data = await res.json();
+          document.getElementById('result').innerText = data.answer;
+          document.getElementById('chartContainer').style.display = 'block';
+          new Chart(document.getElementById('priceChart').getContext('2d'), {
+            type: 'bar', data: { labels: data.prices.map(p => p.label), datasets: [{ label:'Prices', data: data.prices.map(p => p.value) }] },
+            options: { scales:{ y:{ beginAtZero:true } } }
+          });
+          document.getElementById('schoolList').innerHTML = `<h3>Schools Nearby</h3><ul>${data.schools.map(s=>`<li>${s.name} (${s.grades}, ${s.type})</li>`).join('')}</ul>`;
+          document.getElementById('crimeInfo').innerHTML = `<h3>Crime Info</h3><p>Risk Level: ${data.crime.riskLevel}</p><p>City: ${data.crime.city}</p><p>Violent: ${data.crime.violentCrimeRate}</p><p>Property: ${data.crime.propertyCrimeRate}</p>`;
+          glassBox.classList.add('show');
+        } catch(err) {
+          console.error(err);
+          document.getElementById('result').innerText = 'Error fetching results.';
+          glassBox.classList.add('show');
+        }
+      };
+    });
+  </script>
+</body>
+</html>
