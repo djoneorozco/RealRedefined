@@ -1,66 +1,3 @@
-// ELEMENT SELECTORS
-const beginBtn = document.getElementById('beginBtn');
-const avatarImage = document.getElementById('avatarImage');
-const introVideo = document.getElementById('introVideo');
-const followUpVideo = document.getElementById('followUpVideo');
-const goodbyeVideo = document.getElementById('goodbyeVideo');
-const feelingsAudio = document.getElementById('feelingsAudio');
-const surroundingAudio = document.getElementById('surroundingAudio');
-const feelingOptions = document.getElementById('feelingOptions');
-const surroundingOptions = document.getElementById('surroundingOptions');
-const quizForm = document.getElementById('quizForm');
-const headline = document.getElementById('headline');
-const glassBox = document.getElementById('glassBox');
-const resultEl = document.getElementById('result');
-const schoolListEl = document.getElementById('schoolList');
-const crimeInfoEl = document.getElementById('crimeInfo');
-const zipEl = document.getElementById('zip');
-const priceEl = document.getElementById('price');
-const promptEl = document.getElementById('prompt');
-const chartContainer = document.getElementById('chartContainer');
-let chart;
-
-// LET'S BEGIN button
-beginBtn.addEventListener('click', () => {
-  avatarImage.style.display = 'none';
-  beginBtn.style.display = 'none';
-  introVideo.style.display = 'block';
-  introVideo.play();
-});
-
-// When intro video ends, play follow up video
-introVideo.onended = () => {
-  introVideo.style.display = 'none';
-  headline.style.display = 'none';
-  document.querySelectorAll('.left-panel p, .branding').forEach(el => el.style.display = 'none');
-  followUpVideo.style.display = 'block';
-  followUpVideo.play();
-};
-
-followUpVideo.onended = () => {
-  followUpVideo.style.display = 'none';
-  feelingsAudio.play();
-  feelingOptions.style.display = 'block';
-};
-
-// Feeling options
-document.querySelectorAll('#feelingOptions .feeling-images img').forEach(img => {
-  img.addEventListener('click', () => {
-    surroundingAudio.play();
-    feelingOptions.style.display = 'none';
-    surroundingOptions.style.display = 'block';
-  });
-});
-
-// Surrounding options
-document.querySelectorAll('#surroundingOptions .feeling-images img').forEach(img => {
-  img.addEventListener('click', () => {
-    feelingsAudio.play();
-    surroundingOptions.style.display = 'none';
-    quizForm.style.display = 'block';
-  });
-});
-
 // Ask AI button
 document.getElementById('btn-ask').onclick = async () => {
   const zip = zipEl.value.trim();
@@ -79,7 +16,7 @@ document.getElementById('btn-ask').onclick = async () => {
   const formData = new FormData();
   formData.append('zip', zip);
   formData.append('price', price);
-  formData.append('file', promptFile); // Ensure the backend expects 'file'
+  formData.append('file', promptFile);
 
   console.log('Sending FormData:', zip, price, promptFile);
 
@@ -88,7 +25,16 @@ document.getElementById('btn-ask').onclick = async () => {
       method: 'POST',
       body: formData
     });
-    const json = await res.json();
+
+    const text = await res.text();
+    console.log('Raw response:', text);
+
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error('Server did not return valid JSON: ' + text);
+    }
 
     chartContainer.style.display = 'none';
     schoolListEl.innerHTML = '';
