@@ -17,26 +17,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Serve frontend
-app.use(express.static(path.join(__dirname, "../frontend")));
+// 3) Serve frontend static files
+app.use(express.static(path.join(__dirname, '../frontend')));
 
-// 3) Validate keys
+// 4) Validate keys
 if (!process.env.OPENAI_API_KEY) {
-  console.error("❌ Missing OPENAI_API_KEY"); process.exit(1);
+  console.error("❌ Missing OPENAI_API_KEY");
+  process.exit(1);
 }
 if (!process.env.CENSUS_API_KEY) {
-  console.error("❌ Missing CENSUS_API_KEY"); process.exit(1);
+  console.error("❌ Missing CENSUS_API_KEY");
+  process.exit(1);
 }
 
-// 4) OpenAI client
+// 5) OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// 5) Health-check
+// 6) Health-check
 app.get("/api/test", (_req, res) => {
   res.json({ ok: true, msg: "Backend is live!" });
 });
 
-// 6) Median endpoint
+// 7) Median endpoint
 app.get("/api/median/:zip", async (req, res) => {
   const zip = req.params.zip;
   const url = new URL("https://api.census.gov/data/2022/acs/acs5");
@@ -58,7 +60,7 @@ app.get("/api/median/:zip", async (req, res) => {
   }
 });
 
-// 7) AI + chart data endpoint (NO file upload)
+// 8) AI + chart data endpoint (NO file upload)
 app.post("/api/ask", async (req, res) => {
   const { zip, prompt, price } = req.body;
   if (!zip || !prompt || price == null) {
@@ -68,7 +70,7 @@ app.post("/api/ask", async (req, res) => {
     });
   }
 
-  // 7a) Fetch median
+  // 8a) Fetch median (internal API call)
   let median = null;
   try {
     const mRes = await fetch(`http://localhost:${process.env.PORT || 10000}/api/median/${zip}`);
@@ -78,7 +80,7 @@ app.post("/api/ask", async (req, res) => {
     console.warn("Could not fetch median, proceeding without it:", e);
   }
 
-  // 7b) Build system message
+  // 8b) Build system message
   const systemMsg = median
     ? `You are a real-estate AI. ZIP ${zip} has a median home value of $${median.toLocaleString()}.`
     : "You are a real-estate AI.";
@@ -120,12 +122,12 @@ app.post("/api/ask", async (req, res) => {
   }
 });
 
-// 8) All other GETs → index.html
+// 9) All other GETs → serve index.html
 app.get("*", (_req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// 9) Start
+// 10) Start server
 const port = process.env.PORT || 10000;
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
