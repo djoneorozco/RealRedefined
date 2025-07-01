@@ -6,6 +6,9 @@ const headline = document.getElementById('headline');
 const followUpVideo = document.getElementById('followUpVideo');
 const feelingsAudio = document.getElementById('feelingsAudio');
 const feelingOptions = document.getElementById('feelingOptions');
+const surroundingOptions = document.getElementById('surroundingOptions');
+const surroundingAudio = document.getElementById('surroundingAudio');
+const quizForm = document.getElementById('quizForm');
 
 beginBtn.addEventListener('click', () => {
   avatarImage.style.display = 'none';
@@ -136,3 +139,21 @@ document.getElementById('btn-ask').onclick = async () => {
     glassBox.classList.add('show');
   }
 };
+
+// Feeling option image click
+document.querySelectorAll('#feelingOptions .feeling-images img').forEach(img => {
+  img.addEventListener('click', () => {
+    surroundingAudio.play();
+    feelingOptions.style.display = 'none';
+    surroundingOptions.style.display = 'block';
+  });
+});
+
+// Surrounding option image click
+document.querySelectorAll('#surroundingOptions .feeling-images img').forEach(img => {
+  img.addEventListener('click', () => {
+    feelingsAudio.play();
+    surroundingOptions.style.display = 'none';
+    quizForm.style.display = 'block';
+  });
+});
