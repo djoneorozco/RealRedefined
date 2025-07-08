@@ -1,4 +1,6 @@
-//#1 ELEMENT SELECTORS
+// ==========================================================
+// #1 ELEMENT SELECTORS
+// ==========================================================
 const beginBtn = document.getElementById('beginBtn');
 const avatarImage = document.getElementById('avatarImage');
 const introVideo = document.getElementById('introVideo');
@@ -22,7 +24,9 @@ const promptEl = document.getElementById('prompt');
 const chartContainer = document.getElementById('chartContainer');
 let chart;
 
-//#2 LET'S BEGIN button
+// ==========================================================
+// #2 LET'S BEGIN button
+// ==========================================================
 beginBtn.addEventListener('click', () => {
   console.log("👉 Begin button clicked");
   avatarImage.style.display = 'none';
@@ -31,7 +35,9 @@ beginBtn.addEventListener('click', () => {
   introVideo.play();
 });
 
-//#3 When intro video ends, play follow up video
+// ==========================================================
+// #3 When intro video ends, play follow up video
+// ==========================================================
 introVideo.onended = () => {
   console.log("🎥 introVideo ended");
   introVideo.style.display = 'none';
@@ -42,7 +48,9 @@ introVideo.onended = () => {
   followUpVideo.play();
 };
 
-//#4 When follow up video ends, show feeling options
+// ==========================================================
+// #4 When follow up video ends, show feeling options
+// ==========================================================
 followUpVideo.onended = () => {
   console.log("🎥 followUpVideo ended");
   followUpVideo.style.display = 'none';
@@ -50,7 +58,9 @@ followUpVideo.onended = () => {
   feelingOptions.style.display = 'block';
 };
 
-//#5 Feeling options → click moves to surrounding options
+// ==========================================================
+// #5 Feeling options → click moves to surrounding options
+// ==========================================================
 document.querySelectorAll('#feelingOptions .feeling-images img').forEach(img => {
   img.addEventListener('click', () => {
     console.log("🖼️ Feeling image clicked");
@@ -60,7 +70,9 @@ document.querySelectorAll('#feelingOptions .feeling-images img').forEach(img => 
   });
 });
 
-//#6 Surrounding options → click moves to quiz form
+// ==========================================================
+// #6 Surrounding options → click moves to quiz form
+// ==========================================================
 document.querySelectorAll('#surroundingOptions .feeling-images img').forEach(img => {
   img.addEventListener('click', () => {
     console.log("🖼️ Surrounding image clicked");
@@ -70,7 +82,9 @@ document.querySelectorAll('#surroundingOptions .feeling-images img').forEach(img
   });
 });
 
-//#7 Ask AI button
+// ==========================================================
+// #7 Ask AI button
+// ==========================================================
 document.getElementById('btn-ask').onclick = async () => {
   const zip = zipEl.value.trim();
   const price = priceEl.value.trim();
@@ -171,4 +185,33 @@ document.getElementById('btn-ask').onclick = async () => {
       glassBox.classList.add('show');
     }
   };
+};
+
+// ==========================================================
+// #8 🆕 Headshot Overlay Upload — ADD TO END
+// ==========================================================
+document.getElementById("btn-overlay").onclick = async () => {
+  const propertyFile = document.getElementById("propertyFile").files[0];
+  const headshotFile = document.getElementById("headshotFile").files[0];
+
+  if (!propertyFile || !headshotFile) {
+    alert("Both images are required!");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("property", propertyFile);
+  formData.append("headshot", headshotFile);
+
+  const res = await fetch("/api/overlay", {
+    method: "POST",
+    body: formData
+  });
+  const json = await res.json();
+
+  if (json.url) {
+    document.getElementById("overlayResult").innerHTML = `<img src="${json.url}" style="max-width:100%"/>`;
+  } else {
+    document.getElementById("overlayResult").textContent = "❌ Overlay failed.";
+  }
 };
