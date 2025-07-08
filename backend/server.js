@@ -1,5 +1,5 @@
 // ==========================================================
-// backend/server.js – FULL UPDATED VERSION
+// backend/server.js – FINAL FULL VERSION ✅
 // ==========================================================
 
 import express from "express";
@@ -12,20 +12,30 @@ import multer from "multer";
 import fs from "fs";
 import { createCanvas, loadImage } from "canvas";
 
+// ==========================================================
+// ✅ ESM __dirname shim
+// ==========================================================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ==========================================================
+// ✅ Env + Express App
+// ==========================================================
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Serve frontend and static uploads
-app.use(express.static(path.join(__dirname, '../frontend')));
+// ==========================================================
+// ✅ Serve frontend static files + overlay uploads
+// ==========================================================
+app.use(express.static(path.join(__dirname, "../frontend")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// ==========================================================
 // ✅ API Keys check
+// ==========================================================
 if (!process.env.OPENAI_API_KEY) {
   console.error("❌ Missing OPENAI_API_KEY");
   process.exit(1);
@@ -38,14 +48,14 @@ if (!process.env.CENSUS_API_KEY) {
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // ==========================================================
-// #1 Health check
+// #1 Health Check
 // ==========================================================
 app.get("/api/test", (_req, res) => {
   res.json({ ok: true, msg: "Backend is live!" });
 });
 
 // ==========================================================
-// #2 Median Census endpoint
+// #2 Median Census Endpoint
 // ==========================================================
 app.get("/api/median/:zip", async (req, res) => {
   const zip = req.params.zip;
@@ -69,7 +79,7 @@ app.get("/api/median/:zip", async (req, res) => {
 });
 
 // ==========================================================
-// #3 AI Ask endpoint
+// #3 OpenAI Ask Endpoint
 // ==========================================================
 app.post("/api/ask", async (req, res) => {
   const { zip, prompt, price } = req.body;
@@ -86,7 +96,7 @@ app.post("/api/ask", async (req, res) => {
     const mJson = await mRes.json();
     median = mJson.median;
   } catch (e) {
-    console.warn("Could not fetch median, proceeding without it:", e);
+    console.warn("⚠️ Could not fetch median, proceeding without it:", e);
   }
 
   const systemMsg = median
@@ -125,13 +135,13 @@ app.post("/api/ask", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ AI error:", err);
+    console.error("❌ OpenAI error:", err);
     res.status(500).json({ error: "OpenAI request failed." });
   }
 });
 
 // ==========================================================
-// #4 🆕 Headshot Overlay Route
+// #4 ✅ Headshot Overlay Endpoint
 // ==========================================================
 const upload = multer({ dest: "uploads/" });
 
@@ -167,8 +177,9 @@ app.post("/api/overlay", upload.fields([{ name: "property" }, { name: "headshot"
     const out = fs.createWriteStream(outFile);
     const stream = canvas.createPNGStream();
     stream.pipe(out);
+
     out.on("finish", () => {
-      res.json({ url: `/uploads/${outFile.split("/").pop()}` });
+      res.json({ url: `/uploads/${path.basename(outFile)}` });
       fs.unlink(propertyPath, () => {});
       fs.unlink(headshotPath, () => {});
     });
@@ -180,14 +191,14 @@ app.post("/api/overlay", upload.fields([{ name: "property" }, { name: "headshot"
 });
 
 // ==========================================================
-// #5 Fallback: serve index.html for all other GETs
+// #5 Fallback: Serve index.html for All Other GETs
 // ==========================================================
 app.get("*", (_req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
 // ==========================================================
-// #6 Start server
+// #6 Start Server
 // ==========================================================
 const port = process.env.PORT || 10000;
 app.listen(port, () => {
