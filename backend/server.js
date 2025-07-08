@@ -1,4 +1,6 @@
-// backend/server.js
+// ==========================================================
+// backend/server.js – FULL UPDATED VERSION
+// ==========================================================
 
 import express from "express";
 import cors from "cors";
@@ -19,10 +21,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend and uploads
+// ✅ Serve frontend and static uploads
 app.use(express.static(path.join(__dirname, '../frontend')));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// ✅ API Keys check
 if (!process.env.OPENAI_API_KEY) {
   console.error("❌ Missing OPENAI_API_KEY");
   process.exit(1);
@@ -34,12 +37,16 @@ if (!process.env.CENSUS_API_KEY) {
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Health check
+// ==========================================================
+// #1 Health check
+// ==========================================================
 app.get("/api/test", (_req, res) => {
   res.json({ ok: true, msg: "Backend is live!" });
 });
 
-// Median endpoint
+// ==========================================================
+// #2 Median Census endpoint
+// ==========================================================
 app.get("/api/median/:zip", async (req, res) => {
   const zip = req.params.zip;
   const url = new URL("https://api.census.gov/data/2022/acs/acs5");
@@ -61,7 +68,9 @@ app.get("/api/median/:zip", async (req, res) => {
   }
 });
 
-// AI + chart data endpoint
+// ==========================================================
+// #3 AI Ask endpoint
+// ==========================================================
 app.post("/api/ask", async (req, res) => {
   const { zip, prompt, price } = req.body;
   if (!zip || !prompt || price == null) {
@@ -121,7 +130,9 @@ app.post("/api/ask", async (req, res) => {
   }
 });
 
-// 🆕 Headshot overlay route
+// ==========================================================
+// #4 🆕 Headshot Overlay Route
+// ==========================================================
 const upload = multer({ dest: "uploads/" });
 
 app.post("/api/overlay", upload.fields([{ name: "property" }, { name: "headshot" }]), async (req, res) => {
@@ -138,10 +149,12 @@ app.post("/api/overlay", upload.fields([{ name: "property" }, { name: "headshot"
 
     const canvas = createCanvas(property.width, property.height);
     const ctx = canvas.getContext("2d");
+
     ctx.drawImage(property, 0, 0);
 
     const headshotWidth = property.width * 0.2;
     const headshotHeight = (headshotWidth / headshot.width) * headshot.height;
+
     ctx.drawImage(
       headshot,
       property.width - headshotWidth - 20,
@@ -159,17 +172,23 @@ app.post("/api/overlay", upload.fields([{ name: "property" }, { name: "headshot"
       fs.unlink(propertyPath, () => {});
       fs.unlink(headshotPath, () => {});
     });
+
   } catch (err) {
-    console.error(err);
+    console.error("❌ Overlay error:", err);
     res.status(500).json({ error: "Overlay failed." });
   }
 });
 
-// Serve index.html for all other GETs
+// ==========================================================
+// #5 Fallback: serve index.html for all other GETs
+// ==========================================================
 app.get("*", (_req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
+// ==========================================================
+// #6 Start server
+// ==========================================================
 const port = process.env.PORT || 10000;
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
