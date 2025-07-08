@@ -1,26 +1,28 @@
 // backend/server.js
 
-// 1) Imports + ESM __dirname shim
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { OpenAI } from "openai";
 import path from "path";
 import { fileURLToPath } from "url";
+import multer from "multer";
+import fs from "fs";
+import { createCanvas, loadImage } from "canvas";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-// 2) App + middleware
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 3) Serve frontend static files
+// Serve frontend and uploads
 app.use(express.static(path.join(__dirname, '../frontend')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// 4) Validate keys
 if (!process.env.OPENAI_API_KEY) {
   console.error("❌ Missing OPENAI_API_KEY");
   process.exit(1);
@@ -30,15 +32,14 @@ if (!process.env.CENSUS_API_KEY) {
   process.exit(1);
 }
 
-// 5) OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// 6) Health-check
+// Health check
 app.get("/api/test", (_req, res) => {
   res.json({ ok: true, msg: "Backend is live!" });
 });
 
-// 7) Median endpoint
+// Median endpoint
 app.get("/api/median/:zip", async (req, res) => {
   const zip = req.params.zip;
   const url = new URL("https://api.census.gov/data/2022/acs/acs5");
@@ -60,7 +61,7 @@ app.get("/api/median/:zip", async (req, res) => {
   }
 });
 
-// 8) AI + chart data endpoint (NO file upload)
+// AI + chart data endpoint
 app.post("/api/ask", async (req, res) => {
   const { zip, prompt, price } = req.body;
   if (!zip || !prompt || price == null) {
@@ -70,7 +71,6 @@ app.post("/api/ask", async (req, res) => {
     });
   }
 
-  // 8a) Fetch median (internal API call)
   let median = null;
   try {
     const mRes = await fetch(`http://localhost:${process.env.PORT || 10000}/api/median/${zip}`);
@@ -80,7 +80,6 @@ app.post("/api/ask", async (req, res) => {
     console.warn("Could not fetch median, proceeding without it:", e);
   }
 
-  // 8b) Build system message
   const systemMsg = median
     ? `You are a real-estate AI. ZIP ${zip} has a median home value of $${median.toLocaleString()}.`
     : "You are a real-estate AI.";
@@ -122,12 +121,55 @@ app.post("/api/ask", async (req, res) => {
   }
 });
 
-// 9) All other GETs → serve index.html
+// 🆕 Headshot overlay route
+const upload = multer({ dest: "uploads/" });
+
+app.post("/api/overlay", upload.fields([{ name: "property" }, { name: "headshot" }]), async (req, res) => {
+  const propertyPath = req.files?.property?.[0]?.path;
+  const headshotPath = req.files?.headshot?.[0]?.path;
+
+  if (!propertyPath || !headshotPath) {
+    return res.status(400).json({ error: "Both images required." });
+  }
+
+  try {
+    const property = await loadImage(propertyPath);
+    const headshot = await loadImage(headshotPath);
+
+    const canvas = createCanvas(property.width, property.height);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(property, 0, 0);
+
+    const headshotWidth = property.width * 0.2;
+    const headshotHeight = (headshotWidth / headshot.width) * headshot.height;
+    ctx.drawImage(
+      headshot,
+      property.width - headshotWidth - 20,
+      property.height - headshotHeight - 20,
+      headshotWidth,
+      headshotHeight
+    );
+
+    const outFile = `uploads/overlay-${Date.now()}.png`;
+    const out = fs.createWriteStream(outFile);
+    const stream = canvas.createPNGStream();
+    stream.pipe(out);
+    out.on("finish", () => {
+      res.json({ url: `/uploads/${outFile.split("/").pop()}` });
+      fs.unlink(propertyPath, () => {});
+      fs.unlink(headshotPath, () => {});
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Overlay failed." });
+  }
+});
+
+// Serve index.html for all other GETs
 app.get("*", (_req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// 10) Start server
 const port = process.env.PORT || 10000;
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
