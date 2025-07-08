@@ -188,7 +188,7 @@ document.getElementById('btn-ask').onclick = async () => {
 };
 
 // ==========================================================
-// #8 🆕 Headshot Overlay Upload — ADD TO END
+// #8 🆕 Headshot Overlay Upload — SAFE ADDITION
 // ==========================================================
 document.getElementById("btn-overlay").onclick = async () => {
   const propertyFile = document.getElementById("propertyFile").files[0];
